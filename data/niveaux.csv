@@ -1,0 +1,8 @@
+id_niveau,filiere,niveau,semestres
+NIV001,FIL001,Licence 1,S1;S2
+NIV002,FIL001,Licence 2,S3;S4
+NIV003,FIL001,Licence 3,S5;S6
+NIV004,FIL002,Master 1,S7;S8
+NIV005,FIL002,Master 2,S9;S10
+NIV006,FIL003,Licence 3,S5;S6
+NIV007,FIL003,Master 1,S7;S8

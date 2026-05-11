@@ -1,0 +1,24 @@
+id_ue,nom_ue,filiere,niveau,semestre,coefficient,matieres
+UE101,Algorithmique et Programmation,FIL001,Licence 1,S1,6,MAT001;MAT002
+UE102,Mathematiques et Logique,FIL001,Licence 1,S1,4,MAT006
+UE103,Programmation Avancee,FIL001,Licence 1,S2,6,MAT001;MAT002
+UE104,Systemes et Reseaux,FIL001,Licence 1,S2,4,MAT006
+UE201,Bases de Donnees,FIL001,Licence 2,S3,6,MAT002;MAT003
+UE202,Developpement Web,FIL001,Licence 2,S3,4,MAT001
+UE203,Big Data et Analytics,FIL001,Licence 2,S4,8,MAT003
+UE204,Intelligence Artificielle,FIL001,Licence 2,S4,6,MAT004
+UE301,Systemes Distribues,FIL001,Licence 3,S5,6,MAT006
+UE302,Securite Informatique,FIL001,Licence 3,S5,6,MAT005
+UE303,Projet de Fin d'Etudes,FIL001,Licence 3,S6,8,MAT001;MAT002;MAT003
+UE401,Data Mining,FIL002,Master 1,S7,6,MAT003;MAT004
+UE402,Big Data Architecture,FIL002,Master 1,S7,6,MAT003;MAT006
+UE403,Machine Learning Avance,FIL002,Master 1,S8,8,MAT004
+UE404,Deep Learning,FIL002,Master 1,S8,6,MAT004
+UE501,Data Engineering,FIL002,Master 2,S9,8,MAT003;MAT006
+UE502,IA et Big Data,FIL002,Master 2,S9,6,MAT003;MAT004
+UE503,Projet Data Science,FIL002,Master 2,S10,12,MAT003;MAT004;MAT006
+UE601,Cryptographie Avancee,FIL003,Licence 3,S5C,8,MAT005
+UE602,Securite des Reseaux,FIL003,Licence 3,S6C,6,MAT005;MAT006
+UE701,Audit et Pentest,FIL003,Master 1,S7C,8,MAT005
+UE702,Forensic et Investigation,FIL003,Master 1,S7C,6,MAT005
+UE703,Gouvernance de la Securite,FIL003,Master 1,S8C,8,MAT005;MAT006

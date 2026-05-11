@@ -1,0 +1,69 @@
+# ──────────────────────────────────────────────
+# Routes de l'API REST
+# ──────────────────────────────────────────────
+
+# OPTIONS global pour le preflight CORS
+OPTIONS  /*path                                    universite.controllers.ApplicationController.preflight(path)
+
+# ── Health check ──────────────────────────────
+GET      /api/health                               universite.controllers.ApplicationController.health()
+
+# ── Étudiants ─────────────────────────────────
+GET      /api/etudiants                            universite.controllers.EtudiantController.listerTous()
+GET      /api/etudiants/stats                      universite.controllers.EtudiantController.statistiques()
+GET      /api/etudiants/actifs                     universite.controllers.EtudiantController.actifs()
+GET      /api/etudiants/suspendus                  universite.controllers.EtudiantController.suspendus()
+GET      /api/etudiants/filiere/:filiere            universite.controllers.EtudiantController.parFiliere(filiere: String)
+GET      /api/etudiants/niveau/:niveau              universite.controllers.EtudiantController.parNiveau(niveau: String)
+GET      /api/etudiants/:matricule                  universite.controllers.EtudiantController.chercher(matricule: String)
+
+# ── Notes ─────────────────────────────────────
+GET      /api/notes/classement                     universite.controllers.NoteController.classement()
+GET      /api/notes/top5                           universite.controllers.NoteController.top5()
+GET      /api/notes/ajournes                       universite.controllers.NoteController.ajournes()
+GET      /api/notes/invalides                      universite.controllers.NoteController.invalides()
+GET      /api/notes/matieres-difficiles            universite.controllers.NoteController.matieresDifficiles()
+GET      /api/notes/:matricule                     universite.controllers.NoteController.releveNotes(matricule: String)
+GET      /api/notes/:matricule/moyenne             universite.controllers.NoteController.moyenneGenerale(matricule: String)
+GET      /api/notes/:matricule/decision            universite.controllers.NoteController.decision(matricule: String)
+
+# ── Absences ──────────────────────────────────
+GET      /api/absences                             universite.controllers.AbsenceController.toutesAbsences()
+GET      /api/absences/non-justifiees              universite.controllers.AbsenceController.nonJustifiees()
+GET      /api/absences/a-risque                    universite.controllers.AbsenceController.etudiantsARisque()
+GET      /api/absences/taux-global                 universite.controllers.AbsenceController.tauxGlobal()
+GET      /api/absences/par-matiere                 universite.controllers.AbsenceController.parMatiere()
+GET      /api/absences/:matricule                  universite.controllers.AbsenceController.absencesEtudiant(matricule: String)
+
+# ── Paiements ─────────────────────────────────
+GET      /api/paiements/synthese                   universite.controllers.PaiementController.synthese()
+GET      /api/paiements/synthese-filiere           universite.controllers.PaiementController.syntheseParFiliere()
+GET      /api/paiements/en-dette                   universite.controllers.PaiementController.enDette()
+GET      /api/paiements/:matricule                 universite.controllers.PaiementController.paiementEtudiant(matricule: String)
+
+# ── Formations ────────────────────────────────
+GET      /api/formations                           universite.controllers.FormationController.listerToutes()
+GET      /api/formations/:filiere/arbre            universite.controllers.FormationController.arbreFormation(filiere: String)
+GET      /api/formations/:filiere/niveaux          universite.controllers.FormationController.niveauxParFiliere(filiere: String)
+GET      /api/formations/niveau/:id/semestres      universite.controllers.FormationController.semestresParNiveau(id: String)
+GET      /api/formations/semestre/:id/ues          universite.controllers.FormationController.uesParSemestre(id: String)
+GET      /api/formations/ue/:id/matieres           universite.controllers.FormationController.matieresParUE(id: String)
+GET      /api/formations/:filiere/volumes          universite.controllers.FormationController.volumesHoraires(filiere: String)
+GET      /api/formations/matiere-plus-difficile    universite.controllers.FormationController.matierePlusDifficile
+
+# ── Enseignants ───────────────────────────────
+GET      /api/enseignants                          universite.controllers.EnseignantController.listerTous()
+GET      /api/enseignants/volumes-horaires         universite.controllers.EnseignantController.volumesHoraires()
+GET      /api/enseignants/:id/cours                universite.controllers.EnseignantController.coursEnseignant(id: String)
+
+# ── Emploi du temps ───────────────────────────
+GET      /api/emploi-du-temps/filiere/:filiere     universite.controllers.EmploiDuTempsController.parFiliere(filiere: String)
+GET      /api/emploi-du-temps/enseignant/:id       universite.controllers.EmploiDuTempsController.parEnseignant(id: String)
+GET      /api/emploi-du-temps/conflits             universite.controllers.EmploiDuTempsController.conflits()
+
+# ── Dashboard ─────────────────────────────────
+GET      /api/dashboard                            universite.controllers.DashboardController.indicateurs()
+GET      /api/dashboard/taux-reussite              universite.controllers.DashboardController.tauxReussite()
+GET      /api/dashboard/top5                       universite.controllers.DashboardController.top5()
+GET      /api/dashboard/a-risque                   universite.controllers.DashboardController.etudiantsARisque()
+GET      /api/dashboard/finances                   universite.controllers.DashboardController.finances()

@@ -1,0 +1,4 @@
+id_formation,nom_formation,description,duree,responsable
+FIL001,Informatique,Formation en developpement logiciel et systemes informatiques,3,ENS001
+FIL002,Data Science,Formation en analyse de donnees et intelligence artificielle,2,ENS003
+FIL003,Cybersecurite,Formation en securite des systemes d'information,2,ENS004

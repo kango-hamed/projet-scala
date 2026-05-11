@@ -1,0 +1,6 @@
+id_salle,nom_salle,capacite,type
+SAL001,Labo Scala,40,Laboratoire
+SAL002,Labo Big Data,35,Laboratoire
+SAL003,Salle A101,80,Cours
+SAL004,Salle B202,60,Cours
+SAL005,Amphi 1,250,Amphitheatre

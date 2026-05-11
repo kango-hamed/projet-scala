@@ -1,0 +1,7 @@
+id_seance,matiere,enseignant,salle,jour,heure_debut,heure_fin,filiere,niveau
+SEA001,MAT001,ENS001,SAL001,Lundi,08:00,10:00,Informatique,M1
+SEA002,MAT002,ENS002,SAL003,Mardi,10:00,12:00,Informatique,M1
+SEA003,MAT003,ENS005,SAL002,Mercredi,08:00,11:00,Data Science,M1
+SEA004,MAT004,ENS003,SAL004,Jeudi,13:00,16:00,Data Science,M1
+SEA005,MAT005,ENS004,SAL003,Vendredi,08:00,10:00,Cybersecurite,M1
+SEA006,MAT006,ENS005,SAL005,Lundi,14:00,16:00,Cybersecurite,M2
