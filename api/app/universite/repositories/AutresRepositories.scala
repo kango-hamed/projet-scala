@@ -41,6 +41,41 @@ class EnseignantRepository @Inject()(val db: Database) extends BaseRepository {
   def departementsUniques(): Set[String] = withConnection { implicit conn =>
     SQL"SELECT DISTINCT departement FROM enseignants".as(scalar[String].*).toSet
   }
+
+  // ─── CRUD Operations ────────────────────────
+
+  def creer(enseignant: Enseignant): Boolean = withConnection { implicit conn =>
+    SQL"""
+      INSERT INTO enseignants (id_enseignant, nom, prenom, grade, specialite, departement, email, telephone)
+      VALUES (${enseignant.idEnseignant}, ${enseignant.nom}, ${enseignant.prenom}, ${enseignant.grade}, ${enseignant.specialite}, ${enseignant.departement}, ${enseignant.email}, ${enseignant.telephone})
+    """.executeUpdate() > 0
+  }
+
+  def mettreAJour(id: String, enseignant: Enseignant): Boolean = withConnection { implicit conn =>
+    SQL"""
+      UPDATE enseignants SET
+        nom = ${enseignant.nom},
+        prenom = ${enseignant.prenom},
+        grade = ${enseignant.grade},
+        specialite = ${enseignant.specialite},
+        departement = ${enseignant.departement},
+        email = ${enseignant.email},
+        telephone = ${enseignant.telephone}
+      WHERE id_enseignant = $id
+    """.executeUpdate() > 0
+  }
+
+  def supprimer(id: String): Boolean = withConnection { implicit conn =>
+    SQL"DELETE FROM enseignants WHERE id_enseignant = $id".executeUpdate() > 0
+  }
+
+  def idExiste(id: String): Boolean = {
+    trouverParId(id).isDefined
+  }
+
+  def emailExiste(email: String): Boolean = withConnection { implicit conn =>
+    SQL"SELECT COUNT(*) FROM enseignants WHERE email = $email".as(scalar[Long].single) > 0
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -82,6 +117,35 @@ class MatiereRepository @Inject()(val db: Database) extends BaseRepository {
   def volumeHoraireEnseignant(idEnseignant: String): Int = withConnection { implicit conn =>
     SQL"SELECT SUM(volume_horaire) FROM matieres WHERE id_enseignant = $idEnseignant".as(scalar[Option[Int]].single).getOrElse(0)
   }
+
+  // ─── CRUD Operations ────────────────────────
+
+  def creer(matiere: Matiere): Boolean = withConnection { implicit conn =>
+    SQL"""
+      INSERT INTO matieres (id_matiere, nom_matiere, ue, coefficient, volume_horaire, id_enseignant)
+      VALUES (${matiere.idMatiere}, ${matiere.nomMatiere}, ${matiere.ue}, ${matiere.coefficient}, ${matiere.volumeHoraire}, ${matiere.idEnseignant})
+    """.executeUpdate() > 0
+  }
+
+  def mettreAJour(id: String, matiere: Matiere): Boolean = withConnection { implicit conn =>
+    SQL"""
+      UPDATE matieres SET
+        nom_matiere = ${matiere.nomMatiere},
+        ue = ${matiere.ue},
+        coefficient = ${matiere.coefficient},
+        volume_horaire = ${matiere.volumeHoraire},
+        id_enseignant = ${matiere.idEnseignant}
+      WHERE id_matiere = $id
+    """.executeUpdate() > 0
+  }
+
+  def supprimer(id: String): Boolean = withConnection { implicit conn =>
+    SQL"DELETE FROM matieres WHERE id_matiere = $id".executeUpdate() > 0
+  }
+
+  def idExiste(id: String): Boolean = {
+    trouverParId(id).isDefined
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -121,6 +185,39 @@ class InscriptionRepository @Inject()(val db: Database) extends BaseRepository {
   // Vérifier double inscription : un étudiant ne s'inscrit pas deux fois la même année
   def estDejaInscrit(matricule: String, annee: String): Boolean = withConnection { implicit conn =>
     SQL"SELECT COUNT(*) FROM inscriptions WHERE matricule = $matricule AND annee = $annee".as(scalar[Long].single) > 0
+  }
+
+  // ─── CRUD Operations ────────────────────────
+
+  def creer(inscription: Inscription): Boolean = withConnection { implicit conn =>
+    SQL"""
+      INSERT INTO inscriptions (id_inscription, matricule, filiere, niveau, annee, statut)
+      VALUES (${inscription.idInscription}, ${inscription.matricule}, ${inscription.filiere}, ${inscription.niveau}, ${inscription.annee}, ${inscription.statut.toString.toLowerCase})
+    """.executeUpdate() > 0
+  }
+
+  def mettreAJour(id: String, inscription: Inscription): Boolean = withConnection { implicit conn =>
+    SQL"""
+      UPDATE inscriptions SET
+        matricule = ${inscription.matricule},
+        filiere = ${inscription.filiere},
+        niveau = ${inscription.niveau},
+        annee = ${inscription.annee},
+        statut = ${inscription.statut.toString.toLowerCase}
+      WHERE id_inscription = $id
+    """.executeUpdate() > 0
+  }
+
+  def supprimer(id: String): Boolean = withConnection { implicit conn =>
+    SQL"DELETE FROM inscriptions WHERE id_inscription = $id".executeUpdate() > 0
+  }
+
+  def trouverParId(id: String): Option[Inscription] = withConnection { implicit conn =>
+    SQL"SELECT * FROM inscriptions WHERE id_inscription = $id".as(parser.singleOpt)
+  }
+
+  def idExiste(id: String): Boolean = {
+    trouverParId(id).isDefined
   }
 }
 

@@ -39,14 +39,11 @@ class UtilisateurController @Inject()(
   def voirProfil(id: String) = authAction { request =>
     val currentUser = request.utilisateur
     
-    // Vérifier les permissions
-    val peutVoir = currentUser.estAdmin || 
-                   currentUser.idUtilisateur == id ||
-                   (currentUser.estEnseignant && id.startsWith("ENS_")) ||
-                   (currentUser.estEtudiant && id.startsWith("ETU_"))
+    // Un utilisateur peut voir son propre profil, un admin peut tout voir
+    val peutVoir = currentUser.estAdmin || currentUser.idUtilisateur == id
     
     if (!peutVoir) {
-      Forbidden(Json.obj("success" -> false, "erreur" -> "Accès interdit"))
+      Forbidden(Json.obj("success" -> false, "erreur" -> "Accès interdit à ce profil"))
     } else {
       userRepo.trouverParId(id) match {
         case None => NotFound(notFound(s"Utilisateur '$id' introuvable"))

@@ -9,26 +9,16 @@ import scala.io.Source
 import java.io.File
 import scala.util.Try
 import anorm._
+import universite.actions.AdminAction
 
 @Singleton
 class MigrationController @Inject()(
   cc: ControllerComponents,
+  adminAction: AdminAction,
   etudRepo: EtudiantRepository,
-  ensRepo: EnseignantRepository,
-  userRepo: UtilisateurRepository,
-  noteRepo: NoteRepository,
-  absRepo: AbsenceRepository,
-  paiRepo: PaiementRepository,
-  formRepo: FormationRepository,
-  matiereRepo: MatiereRepository,
-  inscrRepo: InscriptionRepository,
-  seanceRepo: SeanceCoursRepository,
-  filiereRepo: FiliereRepository,
-  salleRepo: SalleRepository
-) extends AbstractController(cc) {
-
+...
   // GET /api/migrate
-  def migrate() = Action {
+  def migrate() = adminAction { request =>
     try {
       val results = scala.collection.mutable.Map[String, Int]()
       

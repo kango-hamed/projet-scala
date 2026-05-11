@@ -23,15 +23,18 @@ GET      /api/health                               universite.controllers.Applic
 
 # ── Étudiants ─────────────────────────────────
 GET      /api/etudiants                            universite.controllers.EtudiantController.listerTous()
+POST     /api/etudiants                            universite.controllers.EtudiantController.creer()
 GET      /api/etudiants/stats                      universite.controllers.EtudiantController.statistiques()
 GET      /api/etudiants/actifs                     universite.controllers.EtudiantController.actifs()
 GET      /api/etudiants/suspendus                  universite.controllers.EtudiantController.suspendus()
 GET      /api/etudiants/filiere/:filiere            universite.controllers.EtudiantController.parFiliere(filiere: String)
 GET      /api/etudiants/niveau/:niveau              universite.controllers.EtudiantController.parNiveau(niveau: String)
 GET      /api/etudiants/:matricule                  universite.controllers.EtudiantController.chercher(matricule: String)
+PUT      /api/etudiants/:matricule                  universite.controllers.EtudiantController.mettreAJour(matricule: String)
+DELETE   /api/etudiants/:matricule                  universite.controllers.EtudiantController.supprimer(matricule: String)
 
 # ── Notes ─────────────────────────────────────
-GET      /api/notes/classement                     universite.controllers.NoteController.classement()
+GET      /api/notes                                universite.controllers.NoteController.classement()
 GET      /api/notes/top5                           universite.controllers.NoteController.top5()
 GET      /api/notes/ajournes                       universite.controllers.NoteController.ajournes()
 GET      /api/notes/invalides                      universite.controllers.NoteController.invalides()
@@ -39,35 +42,86 @@ GET      /api/notes/matieres-difficiles            universite.controllers.NoteCo
 GET      /api/notes/:matricule                     universite.controllers.NoteController.releveNotes(matricule: String)
 GET      /api/notes/:matricule/moyenne             universite.controllers.NoteController.moyenneGenerale(matricule: String)
 GET      /api/notes/:matricule/decision            universite.controllers.NoteController.decision(matricule: String)
+POST     /api/notes                                universite.controllers.NoteController.creer()
+PUT      /api/notes/:id                            universite.controllers.NoteController.mettreAJour(id: String)
+DELETE   /api/notes/:id                            universite.controllers.NoteController.supprimer(id: String)
 
 # ── Absences ──────────────────────────────────
 GET      /api/absences                             universite.controllers.AbsenceController.toutesAbsences()
+POST     /api/absences                             universite.controllers.AbsenceController.creer()
 GET      /api/absences/non-justifiees              universite.controllers.AbsenceController.nonJustifiees()
 GET      /api/absences/a-risque                    universite.controllers.AbsenceController.etudiantsARisque()
 GET      /api/absences/taux-global                 universite.controllers.AbsenceController.tauxGlobal()
 GET      /api/absences/par-matiere                 universite.controllers.AbsenceController.parMatiere()
 GET      /api/absences/:matricule                  universite.controllers.AbsenceController.absencesEtudiant(matricule: String)
+PUT      /api/absences/:id                         universite.controllers.AbsenceController.mettreAJour(id: String)
+DELETE   /api/absences/:id                         universite.controllers.AbsenceController.supprimer(id: String)
 
 # ── Paiements ─────────────────────────────────
-GET      /api/paiements/synthese                   universite.controllers.PaiementController.synthese()
+GET      /api/paiements                            universite.controllers.PaiementController.synthese()
+POST     /api/paiements                            universite.controllers.PaiementController.creer()
 GET      /api/paiements/synthese-filiere           universite.controllers.PaiementController.syntheseParFiliere()
 GET      /api/paiements/en-dette                   universite.controllers.PaiementController.enDette()
-GET      /api/paiements/:matricule                 universite.controllers.PaiementController.paiementEtudiant(matricule: String)
+GET      /api/paiements/:matricule                universite.controllers.PaiementController.paiementEtudiant(matricule: String)
+PUT      /api/paiements/:id                        universite.controllers.PaiementController.mettreAJour(id: String)
+DELETE   /api/paiements/:id                        universite.controllers.PaiementController.supprimer(id: String)
 
 # ── Formations ────────────────────────────────
 GET      /api/formations                           universite.controllers.FormationController.listerToutes()
+POST     /api/formations                           universite.controllers.FormationController.creerFormation()
+PUT      /api/formations/:filiere                  universite.controllers.FormationController.mettreAJourFormation(filiere: String)
+DELETE   /api/formations/:filiere                  universite.controllers.FormationController.supprimerFormation(filiere: String)
 GET      /api/formations/:filiere/arbre            universite.controllers.FormationController.arbreFormation(filiere: String)
 GET      /api/formations/:filiere/niveaux          universite.controllers.FormationController.niveauxParFiliere(filiere: String)
+
+# ── Niveaux ──────────────────────────────────
+POST     /api/niveaux                              universite.controllers.FormationController.creerNiveau()
+PUT      /api/niveaux/:id                          universite.controllers.FormationController.mettreAJourNiveau(id: String)
+DELETE   /api/niveaux/:id                          universite.controllers.FormationController.supprimerNiveau(id: String)
+
+# ── Semestres ─────────────────────────────────
+POST     /api/semestres                            universite.controllers.FormationController.creerSemestre()
+PUT      /api/semestres/:id                      universite.controllers.FormationController.mettreAJourSemestre(id: String)
+DELETE   /api/semestres/:id                      universite.controllers.FormationController.supprimerSemestre(id: String)
 GET      /api/formations/niveau/:id/semestres      universite.controllers.FormationController.semestresParNiveau(id: String)
 GET      /api/formations/semestre/:id/ues          universite.controllers.FormationController.uesParSemestre(id: String)
 GET      /api/formations/ue/:id/matieres           universite.controllers.FormationController.matieresParUE(id: String)
+
+# ── UEs ───────────────────────────────────────
+POST     /api/ues                                  universite.controllers.FormationController.creerUE()
+PUT      /api/ues/:id                              universite.controllers.FormationController.mettreAJourUE(id: String)
+DELETE   /api/ues/:id                              universite.controllers.FormationController.supprimerUE(id: String)
+
 GET      /api/formations/:filiere/volumes          universite.controllers.FormationController.volumesHoraires(filiere: String)
 GET      /api/formations/matiere-plus-difficile    universite.controllers.FormationController.matierePlusDifficile
 
 # ── Enseignants ───────────────────────────────
 GET      /api/enseignants                          universite.controllers.EnseignantController.listerTous()
+POST     /api/enseignants                          universite.controllers.EnseignantController.creer()
 GET      /api/enseignants/volumes-horaires         universite.controllers.EnseignantController.volumesHoraires()
+GET      /api/enseignants/departement/:dept        universite.controllers.EnseignantController.parDepartement(dept: String)
+GET      /api/enseignants/:id                      universite.controllers.EnseignantController.chercher(id: String)
+PUT      /api/enseignants/:id                      universite.controllers.EnseignantController.mettreAJour(id: String)
+DELETE   /api/enseignants/:id                      universite.controllers.EnseignantController.supprimer(id: String)
 GET      /api/enseignants/:id/cours                universite.controllers.EnseignantController.coursEnseignant(id: String)
+
+# ── Matieres ──────────────────────────────────
+GET      /api/matieres                             universite.controllers.MatiereController.listerTous()
+POST     /api/matieres                             universite.controllers.MatiereController.creer()
+GET      /api/matieres/enseignant/:id              universite.controllers.MatiereController.parEnseignant(id: String)
+GET      /api/matieres/:id                         universite.controllers.MatiereController.chercher(id: String)
+PUT      /api/matieres/:id                         universite.controllers.MatiereController.mettreAJour(id: String)
+DELETE   /api/matieres/:id                         universite.controllers.MatiereController.supprimer(id: String)
+
+# ── Inscriptions ──────────────────────────────
+GET      /api/inscriptions                         universite.controllers.InscriptionController.listerTous()
+POST     /api/inscriptions                         universite.controllers.InscriptionController.creer()
+GET      /api/inscriptions/validees                universite.controllers.InscriptionController.validees()
+GET      /api/inscriptions/en-attente              universite.controllers.InscriptionController.enAttente()
+GET      /api/inscriptions/etudiant/:matricule     universite.controllers.InscriptionController.parEtudiant(matricule: String)
+GET      /api/inscriptions/:id                     universite.controllers.InscriptionController.chercher(id: String)
+PUT      /api/inscriptions/:id                     universite.controllers.InscriptionController.mettreAJour(id: String)
+DELETE   /api/inscriptions/:id                     universite.controllers.InscriptionController.supprimer(id: String)
 
 # ── Emploi du temps ───────────────────────────
 GET      /api/emploi-du-temps/filiere/:filiere     universite.controllers.EmploiDuTempsController.parFiliere(filiere: String)

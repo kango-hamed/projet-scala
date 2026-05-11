@@ -6,6 +6,7 @@ import javax.inject._
 import universite.services._
 import universite.controllers.JsonFormats._
 import universite.traits._
+import universite.actions.{AuthAction, AdminAction}
 
 // ──────────────────────────────────────────────
 // AbsenceController
@@ -13,17 +14,22 @@ import universite.traits._
 @Singleton
 class AbsenceController @Inject()(
   cc: ControllerComponents,
-  service: AbsenceService
+  service: AbsenceService,
+  absenceRepo: universite.repositories.AbsenceRepository,
+  authAction: AuthAction,
+  adminAction: AdminAction
 ) extends AbstractController(cc) {
 
+  implicit val absenceReads: Reads[Absence] = Json.reads[Absence]
+
   // GET /api/absences
-  def toutesAbsences() = Action {
+  def toutesAbsences() = authAction { request =>
     val liste = service.toutesAbsences()
     Ok(okList(liste, liste.size))
   }
 
   // GET /api/absences/:matricule
-  def absencesEtudiant(matricule: String) = Action {
+  def absencesEtudiant(matricule: String) = authAction { request =>
     val liste  = service.absencesParEtudiant(matricule)
     val totalH = service.totalHeuresParEtudiant(matricule)
     Ok(Json.obj(
@@ -36,13 +42,13 @@ class AbsenceController @Inject()(
   }
 
   // GET /api/absences/non-justifiees
-  def nonJustifiees() = Action {
+  def nonJustifiees() = authAction { request =>
     val liste = service.absencesNonJustifiees()
     Ok(okList(liste, liste.size))
   }
 
   // GET /api/absences/a-risque
-  def etudiantsARisque() = Action {
+  def etudiantsARisque() = authAction { request =>
     val liste = service.etudiantsDepassantSeuil()
     Ok(Json.obj(
       "success" -> true,
@@ -55,7 +61,7 @@ class AbsenceController @Inject()(
   }
 
   // GET /api/absences/taux-global
-  def tauxGlobal() = Action {
+  def tauxGlobal() = authAction { request =>
     Ok(Json.obj(
       "success"           -> true,
       "tauxAbsenteisme"   -> service.tauxAbsenteismeGlobal(),
@@ -65,7 +71,7 @@ class AbsenceController @Inject()(
   }
 
   // GET /api/absences/par-matiere
-  def parMatiere() = Action {
+  def parMatiere() = authAction { request =>
     val rapport = service.rapportParMatiere()
     Ok(Json.obj(
       "success" -> true,
@@ -73,6 +79,52 @@ class AbsenceController @Inject()(
         Json.obj("matiere" -> nom, "totalHeures" -> total, "heuresNonJustifiees" -> nonJ)
       }
     ))
+  }
+
+  // ─── CRUD Operations ──────────────────────
+
+  def creer = adminAction(parse.json) { request =>
+    request.body.validate[Absence].fold(
+      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
+      absence => {
+        if (absenceRepo.idExiste(absence.idAbsence)) {
+          BadRequest(Json.obj("success" -> false, "erreur" -> s"L'absence '${absence.idAbsence}' existe déjà"))
+        } else if (absenceRepo.creer(absence)) {
+          Created(Json.obj("success" -> true, "message" -> "Absence créée avec succès", "data" -> absence))
+        } else {
+          InternalServerError(Json.obj("success" -> false, "erreur" -> "Erreur lors de la création de l'absence"))
+        }
+      }
+    )
+  }
+
+  def mettreAJour(id: String) = adminAction(parse.json) { request =>
+    request.body.validate[Absence].fold(
+      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
+      absence => {
+        absenceRepo.trouverParId(id) match {
+          case None => NotFound(Json.obj("success" -> false, "erreur" -> s"Absence '$id' introuvable"))
+          case Some(_) =>
+            if (absenceRepo.mettreAJour(id, absence)) {
+              Ok(Json.obj("success" -> true, "message" -> "Absence mise à jour avec succès", "data" -> absence))
+            } else {
+              InternalServerError(Json.obj("success" -> false, "erreur" -> "Erreur lors de la mise à jour"))
+            }
+        }
+      }
+    )
+  }
+
+  def supprimer(id: String) = adminAction { request =>
+    absenceRepo.trouverParId(id) match {
+      case None => NotFound(Json.obj("success" -> false, "erreur" -> s"Absence '$id' introuvable"))
+      case Some(_) =>
+        if (absenceRepo.supprimer(id)) {
+          Ok(Json.obj("success" -> true, "message" -> s"Absence '$id' supprimée avec succès"))
+        } else {
+          InternalServerError(Json.obj("success" -> false, "erreur" -> "Erreur lors de la suppression"))
+        }
+    }
   }
 }
 
@@ -82,11 +134,16 @@ class AbsenceController @Inject()(
 @Singleton
 class PaiementController @Inject()(
   cc: ControllerComponents,
-  service: PaiementService
+  service: PaiementService,
+  paiementRepo: universite.repositories.PaiementRepository,
+  authAction: AuthAction,
+  adminAction: AdminAction
 ) extends AbstractController(cc) {
 
+  implicit val paiementReads: Reads[Paiement] = Json.reads[Paiement]
+
   // GET /api/paiements/:matricule
-  def paiementEtudiant(matricule: String) = Action {
+  def paiementEtudiant(matricule: String) = authAction { request =>
     service.paiementEtudiant(matricule) match {
       case Some(p) => Ok(ok(p))
       case None    => NotFound(notFound(s"Aucun paiement pour '$matricule'"))
@@ -94,7 +151,7 @@ class PaiementController @Inject()(
   }
 
   // GET /api/paiements/en-dette
-  def enDette() = Action {
+  def enDette() = authAction { request =>
     val liste = service.etudiantsEnDetteAvecNom()
     Ok(Json.obj(
       "success" -> true,
@@ -106,7 +163,7 @@ class PaiementController @Inject()(
   }
 
   // GET /api/paiements/synthese
-  def synthese() = Action {
+  def synthese() = authAction { request =>
     Ok(Json.obj(
       "success"           -> true,
       "montantAttendu"    -> service.montantTotalAttendu(),
@@ -117,7 +174,7 @@ class PaiementController @Inject()(
   }
 
   // GET /api/paiements/synthese-filiere
-  def syntheseParFiliere() = Action {
+  def syntheseParFiliere() = authAction { request =>
     val data = service.syntheseFinanciereParFiliere()
     Ok(Json.obj(
       "success" -> true,
@@ -133,82 +190,50 @@ class PaiementController @Inject()(
       }.toList
     ))
   }
-}
 
-// ──────────────────────────────────────────────
-// EnseignantController
-// ──────────────────────────────────────────────
-@Singleton
-class EnseignantController @Inject()(
-  cc: ControllerComponents,
-  service: EnseignantService
-) extends AbstractController(cc) {
+  // ─── CRUD Operations ──────────────────────
 
-  // GET /api/enseignants
-  def listerTous() = Action {
-    val liste = service.tousLesEnseignants()
-    Ok(okList(liste, liste.size))
-  }
-
-  // GET /api/enseignants/:id/cours
-  def coursEnseignant(id: String) = Action {
-    service.rechercherParId(id) match {
-      case None => NotFound(notFound(s"Enseignant '$id' introuvable"))
-      case Some(ens) =>
-        val cours = service.coursParEnseignant(id)
-        Ok(Json.obj(
-          "success"    -> true,
-          "enseignant" -> Json.toJson(ens),
-          "cours"      -> Json.toJson(cours)
-        ))
-    }
-  }
-
-  // GET /api/enseignants/volumes-horaires
-  def volumesHoraires() = Action {
-    val volumes = service.volumeHoraireParEnseignant()
-    Ok(Json.obj(
-      "success" -> true,
-      "data"    -> volumes.map { case (nom, h) =>
-        Json.obj("enseignant" -> nom, "volumeHoraire" -> h)
-      }.toList.sortBy(-_("volumeHoraire").as[Int])
-    ))
-  }
-}
-
-// ──────────────────────────────────────────────
-// EmploiDuTempsController
-// ──────────────────────────────────────────────
-@Singleton
-class EmploiDuTempsController @Inject()(
-  cc: ControllerComponents,
-  service: EmploiDuTempsService
-) extends AbstractController(cc) {
-
-  // GET /api/emploi-du-temps/filiere/:filiere
-  def parFiliere(filiere: String) = Action {
-    val seances = service.emploiParFiliere(filiere)
-    Ok(okList(seances, seances.size))
-  }
-
-  // GET /api/emploi-du-temps/enseignant/:id
-  def parEnseignant(id: String) = Action {
-    val seances = service.emploiParEnseignant(id)
-    Ok(okList(seances, seances.size))
-  }
-
-  // GET /api/emploi-du-temps/conflits
-  def conflits() = Action {
-    val conflits = service.conflitsDeSalle()
-    Ok(Json.obj(
-      "success"  -> true,
-      "total"    -> conflits.size,
-      "conflits" -> conflits.map { case (a, b) =>
-        Json.obj(
-          "seance1" -> Json.toJson(a),
-          "seance2" -> Json.toJson(b)
-        )
+  def creer = adminAction(parse.json) { request =>
+    request.body.validate[Paiement].fold(
+      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
+      paiement => {
+        if (paiementRepo.idExiste(paiement.idPaiement)) {
+          BadRequest(Json.obj("success" -> false, "erreur" -> s"Le paiement '${paiement.idPaiement}' existe déjà"))
+        } else if (paiementRepo.creer(paiement)) {
+          Created(Json.obj("success" -> true, "message" -> "Paiement créé avec succès", "data" -> paiement))
+        } else {
+          InternalServerError(Json.obj("success" -> false, "erreur" -> "Erreur lors de la création du paiement"))
+        }
       }
-    ))
+    )
+  }
+
+  def mettreAJour(id: String) = adminAction(parse.json) { request =>
+    request.body.validate[Paiement].fold(
+      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
+      paiement => {
+        paiementRepo.trouverParId(id) match {
+          case None => NotFound(Json.obj("success" -> false, "erreur" -> s"Paiement '$id' introuvable"))
+          case Some(_) =>
+            if (paiementRepo.mettreAJour(id, paiement)) {
+              Ok(Json.obj("success" -> true, "message" -> "Paiement mis à jour avec succès", "data" -> paiement))
+            } else {
+              InternalServerError(Json.obj("success" -> false, "erreur" -> "Erreur lors de la mise à jour"))
+            }
+        }
+      }
+    )
+  }
+
+  def supprimer(id: String) = adminAction { request =>
+    paiementRepo.trouverParId(id) match {
+      case None => NotFound(Json.obj("success" -> false, "erreur" -> s"Paiement '$id' introuvable"))
+      case Some(_) =>
+        if (paiementRepo.supprimer(id)) {
+          Ok(Json.obj("success" -> true, "message" -> s"Paiement '$id' supprimé avec succès"))
+        } else {
+          InternalServerError(Json.obj("success" -> false, "erreur" -> "Erreur lors de la suppression"))
+        }
+    }
   }
 }

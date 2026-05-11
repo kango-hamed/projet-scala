@@ -60,4 +60,37 @@ class PaiementRepository @Inject()(val db: Database) extends BaseRepository {
     case Nil => 0.0
     case head :: tail => head.montantPaye + totalPayeRecursif(tail)
   }
+
+  // ─── CRUD Operations ────────────────────────
+
+  def creer(paiement: Paiement): Boolean = withConnection { implicit conn =>
+    SQL"""
+      INSERT INTO paiements (id_paiement, matricule, montant_total, montant_paye, date_paiement, mode)
+      VALUES (${paiement.idPaiement}, ${paiement.matricule}, ${paiement.montantTotal}, ${paiement.montantPaye}, ${paiement.datePaiement}, ${paiement.mode})
+    """.executeUpdate() > 0
+  }
+
+  def mettreAJour(id: String, paiement: Paiement): Boolean = withConnection { implicit conn =>
+    SQL"""
+      UPDATE paiements SET
+        matricule = ${paiement.matricule},
+        montant_total = ${paiement.montantTotal},
+        montant_paye = ${paiement.montantPaye},
+        date_paiement = ${paiement.datePaiement},
+        mode = ${paiement.mode}
+      WHERE id_paiement = $id
+    """.executeUpdate() > 0
+  }
+
+  def supprimer(id: String): Boolean = withConnection { implicit conn =>
+    SQL"DELETE FROM paiements WHERE id_paiement = $id".executeUpdate() > 0
+  }
+
+  def trouverParId(id: String): Option[Paiement] = withConnection { implicit conn =>
+    SQL"SELECT * FROM paiements WHERE id_paiement = $id".as(parser.singleOpt)
+  }
+
+  def idExiste(id: String): Boolean = {
+    trouverParId(id).isDefined
+  }
 }

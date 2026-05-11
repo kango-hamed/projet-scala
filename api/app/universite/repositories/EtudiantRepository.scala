@@ -90,4 +90,42 @@ class EtudiantRepository @Inject()(val db: Database) extends BaseRepository {
   def grouperParNiveau(): Map[String, List[Etudiant]] = {
     tousLesEtudiants().groupBy(_.niveau)
   }
+
+  // ─── CRUD Operations ────────────────────────
+
+  def creer(etudiant: Etudiant): Boolean = withConnection { implicit conn =>
+    SQL"""
+      INSERT INTO etudiants (matricule, nom, prenom, sexe, date_naissance, email, telephone, filiere, niveau, annee, statut)
+      VALUES (${etudiant.matricule}, ${etudiant.nom}, ${etudiant.prenom}, ${etudiant.sexe}, ${etudiant.dateNaissance}, ${etudiant.email}, ${etudiant.telephone}, ${etudiant.filiere}, ${etudiant.niveau}, ${etudiant.annee}, ${etudiant.statut.toString.toLowerCase})
+    """.executeUpdate() > 0
+  }
+
+  def mettreAJour(matricule: String, etudiant: Etudiant): Boolean = withConnection { implicit conn =>
+    SQL"""
+      UPDATE etudiants SET
+        nom = ${etudiant.nom},
+        prenom = ${etudiant.prenom},
+        sexe = ${etudiant.sexe},
+        date_naissance = ${etudiant.dateNaissance},
+        email = ${etudiant.email},
+        telephone = ${etudiant.telephone},
+        filiere = ${etudiant.filiere},
+        niveau = ${etudiant.niveau},
+        annee = ${etudiant.annee},
+        statut = ${etudiant.statut.toString.toLowerCase}
+      WHERE matricule = $matricule
+    """.executeUpdate() > 0
+  }
+
+  def supprimer(matricule: String): Boolean = withConnection { implicit conn =>
+    SQL"DELETE FROM etudiants WHERE matricule = $matricule".executeUpdate() > 0
+  }
+
+  def matriculeExiste(matricule: String): Boolean = {
+    trouverParMatricule(matricule).isDefined
+  }
+
+  def emailExiste(email: String): Boolean = withConnection { implicit conn =>
+    SQL"SELECT COUNT(*) FROM etudiants WHERE email = $email".as(scalar[Long].single) > 0
+  }
 }

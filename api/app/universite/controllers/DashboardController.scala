@@ -7,15 +7,17 @@ import universite.dashboard.TableauBord
 import universite.models._
 import universite.controllers.JsonFormats._
 import universite.traits._
+import universite.actions.AdminAction
 
 @Singleton
 class DashboardController @Inject()(
   cc: ControllerComponents,
-  dashboard: TableauBord
+  dashboard: TableauBord,
+  adminAction: AdminAction
 ) extends AbstractController(cc) {
 
   // GET /api/dashboard  — tous les indicateurs d'un coup
-  def indicateurs() = Action {
+  def indicateurs() = adminAction { request =>
     val top5      = dashboard.top5Etudiants()
     val risque    = dashboard.etudiantsARisque()
 
@@ -77,7 +79,7 @@ class DashboardController @Inject()(
   }
 
   // GET /api/dashboard/taux-reussite
-  def tauxReussite() = Action {
+  def tauxReussite() = adminAction { request =>
     Ok(Json.obj(
       "success" -> true,
       "global"  -> dashboard.tauxReussiteGlobal(),
@@ -86,7 +88,7 @@ class DashboardController @Inject()(
   }
 
   // GET /api/dashboard/top5
-  def top5() = Action {
+  def top5() = adminAction { request =>
     val liste = dashboard.top5Etudiants()
     Ok(Json.obj(
       "success" -> true,
@@ -97,13 +99,13 @@ class DashboardController @Inject()(
   }
 
   // GET /api/dashboard/a-risque
-  def etudiantsARisque() = Action {
+  def etudiantsARisque() = adminAction { request =>
     val liste = dashboard.etudiantsARisque()
     Ok(Json.obj("success" -> true, "total" -> liste.size, "data" -> liste))
   }
 
   // GET /api/dashboard/finances
-  def finances() = Action {
+  def finances() = adminAction { request =>
     Ok(Json.obj(
       "success"          -> true,
       "montantAttendu"   -> dashboard.montantTotalAttendu(),

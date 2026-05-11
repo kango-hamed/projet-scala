@@ -14,7 +14,7 @@ class RateLimiterService {
   
   private val MAX_ATTEMPTS = 5           // Tentatives max par fenêtre
   private val WINDOW_SECONDS = 900       // Fenêtre de 15 minutes
-  private val BLOCK_DURATION = 3600      // Blocage 1 heure
+  private val BLOCK_DURATION = 600      // Blocage 1 heure
   
   // Structure: ip → (tentatives, timestampDerniereTentative, bloqueJusqua)
   private val attempts = new ConcurrentHashMap[String, (Int, Long, Long)]()

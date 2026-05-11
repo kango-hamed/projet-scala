@@ -7,6 +7,7 @@ import universite.services.{AuthService, RateLimiterService}
 import play.api.http.HttpEntity
 import universite.models._
 import universite.controllers.JsonFormats._
+import universite.actions.{AuthAction, AdminAction}
 
 // ─────────────────────────────────────────────
 // Controller : AuthController
@@ -16,7 +17,9 @@ import universite.controllers.JsonFormats._
 class AuthController @Inject()(
   cc: ControllerComponents,
   authService: AuthService,
-  rateLimiter: RateLimiterService
+  rateLimiter: RateLimiterService,
+  authAction: AuthAction,
+  adminAction: AdminAction
 ) extends AbstractController(cc) {
 
   implicit val loginReads: Reads[LoginRequest] = Json.reads[LoginRequest]
@@ -63,7 +66,7 @@ class AuthController @Inject()(
 
   // ─── POST /api/auth/register ────────────────
   // Accessible uniquement aux admins pour créer des comptes
-  def register = Action(parse.json) { request =>
+  def register = adminAction(parse.json) { request =>
     request.body.validate[RegisterRequest].fold(
       errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
       reg => {
@@ -87,28 +90,22 @@ class AuthController @Inject()(
 
   // ─── GET /api/auth/me ───────────────────────
   // Retourne l'utilisateur connecté depuis le token
-  def me = Action { request =>
-    val tokenOpt = request.headers.get("Authorization").flatMap(authService.extraireTokenHeader)
-    
-    authService.obtenirUtilisateurConnecte(tokenOpt) match {
-      case None => Unauthorized(Json.obj("success" -> false, "erreur" -> "Token invalide ou expiré"))
-      case Some(utilisateur) =>
-        Ok(Json.obj(
-          "success" -> true,
-          "utilisateur" -> Json.obj(
-            "id" -> utilisateur.idUtilisateur,
-            "email" -> utilisateur.email,
-            "role" -> utilisateur.role.code,
-            "roleNom" -> utilisateur.role.nom,
-            "idProfil" -> utilisateur.idProfil,
-            "actif" -> utilisateur.actif
-          )
-        ))
-    }
+  def me = authAction { request =>
+    val utilisateur = request.utilisateur
+    Ok(Json.obj(
+      "success" -> true,
+      "utilisateur" -> Json.obj(
+        "id" -> utilisateur.idUtilisateur,
+        "email" -> utilisateur.email,
+        "role" -> utilisateur.role.code,
+        "roleNom" -> utilisateur.role.nom,
+        "idProfil" -> utilisateur.idProfil,
+        "actif" -> utilisateur.actif
+      )
+    ))
   }
 
   // ─── POST /api/auth/logout ──────────────────
-  // Côté serveur : juste une confirmation (le token reste valide jusqu'à expiration)
   def logout = Action {
     Ok(Json.obj(
       "success" -> true,
