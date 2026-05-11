@@ -9,10 +9,10 @@ import universite.controllers.JsonFormats._
 import universite.traits._
 
 @Singleton
-class NoteController @Inject()(cc: ControllerComponents)
-    extends AbstractController(cc) {
-
-  private val service = new NoteService()
+class NoteController @Inject()(
+  cc: ControllerComponents,
+  service: NoteService
+) extends AbstractController(cc) {
 
   // GET /api/notes/:matricule  — relevé complet
   def releveNotes(matricule: String) = Action {

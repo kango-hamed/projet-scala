@@ -1,57 +1,63 @@
 package universite.repositories
 
 import universite.models.Absence
-import universite.traits._
+import javax.inject.{Inject, Singleton}
+import play.api.db.Database
+import anorm._
+import anorm.SqlParser._
 
 // ─────────────────────────────────────────────
 // Repository : Absence
+// Gestion des absences avec PostgreSQL et Anorm
 // ─────────────────────────────────────────────
-class AbsenceRepository(val cheminFichier: String = "data/absences.csv")
-    extends BaseRepository[Absence] {
+@Singleton
+class AbsenceRepository @Inject()(val db: Database) extends BaseRepository {
 
-  override def parseLigne(ligne: String): Option[Absence] =
-    Absence.fromCSV(ligne)
-
-  // ── Requêtes spécialisées ─────────────────
-
-  def toutesLesAbsences(): List[Absence] =
-    chargerOuVide()
-
-  def absencesParEtudiant(matricule: String): List[Absence] =
-    chargerOuVide().filter(_.matricule == matricule)
-
-  def absencesParMatiere(idMatiere: String): List[Absence] =
-    chargerOuVide().filter(_.idMatiere == idMatiere)
-
-  // Absences non justifiées uniquement
-  def absencesNonJustifiees(): List[Absence] =
-    chargerOuVide().filterNot(_.justifiee)
-
-  // Absences justifiées uniquement
-  def absencesJustifiees(): List[Absence] =
-    chargerOuVide().filter(_.justifiee)
-
-  // Total d'heures d'absence pour un étudiant
-  def totalHeuresParEtudiant(matricule: String): Int =
-    absencesParEtudiant(matricule).map(_.heures).sum
-
-  // Étudiants dépassant un seuil d'heures (par défaut 10h)
-  def etudiantsDepassantSeuil(seuil: Int = 10): List[(String, Int)] = {
-    val absences = chargerOuVide()
-    // groupBy puis sum via foldLeft
-    val totauxParEtudiant: Map[String, Int] =
-      absences.foldLeft(Map.empty[String, Int]) { (acc, a) =>
-        acc + (a.matricule -> (acc.getOrElse(a.matricule, 0) + a.heures))
-      }
-    totauxParEtudiant
-      .filter { case (_, total) => total > seuil }
-      .toList
-      .sortBy(-_._2)
+  private val parser = {
+    get[String]("id_absence") ~
+    get[String]("matricule") ~
+    get[String]("id_matiere") ~
+    get[String]("date_absence") ~
+    get[Int]("heures") ~
+    get[Boolean]("justifiee") map {
+      case id ~ mat ~ matId ~ date ~ hrs ~ just =>
+        Absence(id, mat, matId, date, hrs, just)
+    }
   }
 
-  // Total heures par matière
-  def totalHeuresParMatiere(): Map[String, Int] =
-    chargerOuVide()
-      .groupBy(_.idMatiere)
-      .map { case (mat, abs) => mat -> abs.map(_.heures).sum }
+  def toutesLesAbsences(): List[Absence] = withConnection { implicit conn =>
+    SQL"SELECT * FROM absences".as(parser.*)
+  }
+
+  def absencesParEtudiant(matricule: String): List[Absence] = withConnection { implicit conn =>
+    SQL"SELECT * FROM absences WHERE matricule = $matricule".as(parser.*)
+  }
+
+  def totalHeuresParEtudiant(matricule: String): Int = withConnection { implicit conn =>
+    SQL"SELECT SUM(heures) FROM absences WHERE matricule = $matricule".as(scalar[Option[Int]].single).getOrElse(0)
+  }
+
+  def absencesNonJustifiees(): List[Absence] = withConnection { implicit conn =>
+    SQL"SELECT * FROM absences WHERE justifiee = false".as(parser.*)
+  }
+
+  def absencesNonJustifiees(matricule: String): List[Absence] = withConnection { implicit conn =>
+    SQL"SELECT * FROM absences WHERE matricule = $matricule AND justifiee = false".as(parser.*)
+  }
+
+  def etudiantsDepassantSeuil(seuil: Int): List[(String, Int)] = withConnection { implicit conn =>
+    SQL"""
+      SELECT matricule, SUM(heures) as total 
+      FROM absences 
+      GROUP BY matricule 
+      HAVING SUM(heures) > $seuil
+      ORDER BY total DESC
+    """.as((get[String]("matricule") ~ get[Int]("total") map { case m ~ t => (m, t) }).*)
+  }
+
+  def totalHeuresParMatiere(): Map[String, Int] = withConnection { implicit conn =>
+    SQL"SELECT id_matiere, SUM(heures) as total FROM absences GROUP BY id_matiere"
+      .as((get[String]("id_matiere") ~ get[Int]("total") map { case m ~ t => (m, t) }).*)
+      .toMap
+  }
 }

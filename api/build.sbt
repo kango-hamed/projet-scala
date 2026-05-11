@@ -7,8 +7,20 @@ lazy val root = (project in file("."))
 
 libraryDependencies ++= Seq(
   guice,
+  jdbc,
+  evolutions,
   "com.typesafe.play" %% "play-json" % "2.9.4",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.0" % Test
+  "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.0" % Test,
+  // JWT Authentication
+  "com.github.jwt-scala" %% "jwt-play" % "9.4.4",
+  // Password hashing (bcrypt)
+  "org.mindrot" % "jbcrypt" % "0.4",
+  // PostgreSQL
+  "org.postgresql" % "postgresql" % "42.7.1",
+  // Database connection pool
+  "com.zaxxer" % "HikariCP" % "5.1.0",
+  // Anorm (SQL mapping)
+  "org.playframework.anorm" %% "anorm" % "2.7.0"
 )
 
 // Désactiver la documentation pour accélérer le build

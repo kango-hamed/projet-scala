@@ -8,14 +8,14 @@ import universite.traits._
 // Tableau de bord académique
 // Agrège tous les indicateurs décisionnels
 // ─────────────────────────────────────────────
-class TableauBord(
-  etudService    : EtudiantService   = new EtudiantService(),
-  noteService    : NoteService       = new NoteService(),
-  absService     : AbsenceService    = new AbsenceService(),
-  paiService     : PaiementService   = new PaiementService(),
-  ensService     : EnseignantService = new EnseignantService(),
-  etudRepo       : EtudiantRepository = new EtudiantRepository(),
-  matiereRepo    : MatiereRepository  = new MatiereRepository()
+class TableauBord @javax.inject.Inject()(
+  val etudService    : EtudiantService,
+  val noteService    : NoteService,
+  val absService     : AbsenceService,
+  val paiService     : PaiementService,
+  val ensService     : EnseignantService,
+  val etudRepo       : EtudiantRepository,
+  val matiereRepo    : MatiereRepository
 ) {
 
   // ── Indicateurs étudiants ────────────────

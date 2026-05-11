@@ -7,9 +7,9 @@ import universite.traits._
 // ─────────────────────────────────────────────
 // Service : PaiementService
 // ─────────────────────────────────────────────
-class PaiementService(
-  paiRepo  : PaiementRepository  = new PaiementRepository(),
-  etudRepo : EtudiantRepository  = new EtudiantRepository()
+class PaiementService @javax.inject.Inject()(
+  val paiRepo  : PaiementRepository,
+  val etudRepo : EtudiantRepository
 ) {
 
   // ── Recherche ────────────────────────────

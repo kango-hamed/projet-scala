@@ -7,10 +7,10 @@ import universite.traits._
 // ─────────────────────────────────────────────
 // Service : AbsenceService
 // ─────────────────────────────────────────────
-class AbsenceService(
-  absRepo     : AbsenceRepository  = new AbsenceRepository(),
-  etudRepo    : EtudiantRepository = new EtudiantRepository(),
-  matiereRepo : MatiereRepository  = new MatiereRepository()
+class AbsenceService @javax.inject.Inject()(
+  val absRepo     : AbsenceRepository,
+  val etudRepo    : EtudiantRepository,
+  val matiereRepo : MatiereRepository
 ) {
 
   // ── Totaux ───────────────────────────────

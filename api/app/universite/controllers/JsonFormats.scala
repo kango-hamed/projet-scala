@@ -2,6 +2,21 @@ package universite.controllers
 
 import play.api.libs.json._
 import universite.models._
+import universite.models.Enseignant
+import universite.models.Etudiant
+import universite.models.Matiere
+import universite.models.Filiere
+import universite.models.Salle
+import universite.models.Note
+import universite.models.Absence
+import universite.models.Paiement
+import universite.models.Inscription
+import universite.models.SeanceCours
+import universite.models.Formation
+import universite.models.Niveau
+import universite.models.Semestre
+import universite.models.UniteEnseignement
+import universite.models.Utilisateur
 
 // ──────────────────────────────────────────────
 // Formats JSON implicites pour tous les modèles
@@ -61,6 +76,26 @@ object JsonFormats {
   implicit val niveauWrites: Writes[Niveau] = Json.writes[Niveau]
   implicit val semestreWrites: Writes[Semestre] = Json.writes[Semestre]
   implicit val uniteEnseignementWrites: Writes[UniteEnseignement] = Json.writes[UniteEnseignement]
+
+  // ── Authentification ──────────────────────
+
+  implicit val roleWrites: Writes[RoleUtilisateur] =
+    Writes[RoleUtilisateur] { role =>
+      Json.obj(
+        "code" -> role.code,
+        "nom" -> role.nom
+      )
+    }
+
+  implicit val utilisateurWrites: Writes[Utilisateur] =
+    (u: Utilisateur) => Json.obj(
+      "id" -> u.idUtilisateur,
+      "email" -> u.email,
+      "role" -> u.role.code,
+      "roleNom" -> u.role.nom,
+      "idProfil" -> u.idProfil,
+      "actif" -> u.actif
+    )
 
   // ── Helpers pour réponses standardisées ───
 

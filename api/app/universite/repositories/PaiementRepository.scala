@@ -1,60 +1,63 @@
 package universite.repositories
 
 import universite.models.Paiement
-import universite.traits._
+import javax.inject.{Inject, Singleton}
+import play.api.db.Database
+import anorm._
+import anorm.SqlParser._
 
 // ─────────────────────────────────────────────
 // Repository : Paiement
+// Gestion des paiements avec PostgreSQL et Anorm
 // ─────────────────────────────────────────────
-class PaiementRepository(val cheminFichier: String = "data/paiements.csv")
-    extends BaseRepository[Paiement] {
+@Singleton
+class PaiementRepository @Inject()(val db: Database) extends BaseRepository {
 
-  override def parseLigne(ligne: String): Option[Paiement] =
-    Paiement.fromCSV(ligne)
-
-  // ── Requêtes spécialisées ─────────────────
-
-  def tousPaiements(): List[Paiement] =
-    chargerOuVide()
-
-  def paiementParEtudiant(matricule: String): Option[Paiement] =
-    chargerOuVide().find(_.matricule == matricule)
-
-  // Étudiants avec une dette (reste à payer > 0)
-  def etudiantsEnDette(): List[Paiement] =
-    chargerOuVide().filterNot(_.estSolde)
-
-  // Étudiants totalement soldés
-  def etudiantsSoldes(): List[Paiement] =
-    chargerOuVide().filter(_.estSolde)
-
-  // Montant total attendu (somme de tous les montantTotal)
-  def montantTotalAttendu(): Double =
-    chargerOuVide().map(_.montantTotal).sum
-
-  // Montant total encaissé (somme de tous les montantPaye)
-  def montantTotalEncaisse(): Double =
-    chargerOuVide().map(_.montantPaye).sum
-
-  // Montant restant à recouvrer
-  def montantRestant(): Double =
-    chargerOuVide().map(_.resteAPayer).sum
-
-  // Taux global de recouvrement (en %)
-  def tauxRecouvrement(): Double = {
-    val total = montantTotalAttendu()
-    if (total == 0) 0.0
-    else (montantTotalEncaisse() / total) * 100
+  private val parser = {
+    get[String]("id_paiement") ~
+    get[String]("matricule") ~
+    get[Double]("montant_total") ~
+    get[Double]("montant_paye") ~
+    get[String]("date_paiement") ~
+    get[String]("mode") map {
+      case id ~ mat ~ total ~ paye ~ date ~ mode =>
+        Paiement(id, mat, total, paye, date, mode)
+    }
   }
 
-  // Paiements par mode (Mobile Money / Banque)
-  def grouperParMode(): Map[String, List[Paiement]] =
-    chargerOuVide().groupBy(_.mode)
+  def tousLesPaiements(): List[Paiement] = withConnection { implicit conn =>
+    SQL"SELECT * FROM paiements".as(parser.*)
+  }
 
-  // Récursif : calcul du total de paiements payés
-  def totalPayeRecursif(paiements: List[Paiement]): Double =
-    paiements match {
-      case Nil         => 0.0
-      case head :: tail => head.montantPaye + totalPayeRecursif(tail)
-    }
+  def tousPaiements(): List[Paiement] = tousLesPaiements()
+
+  def paiementParEtudiant(matricule: String): Option[Paiement] = withConnection { implicit conn =>
+    SQL"SELECT * FROM paiements WHERE matricule = $matricule".as(parser.singleOpt)
+  }
+
+  def etudiantsEnDette(): List[Paiement] = withConnection { implicit conn =>
+    SQL"SELECT * FROM paiements WHERE montant_paye < montant_total".as(parser.*)
+  }
+
+  def montantTotalAttendu(): Double = withConnection { implicit conn =>
+    SQL"SELECT SUM(montant_total) FROM paiements".as(scalar[Option[Double]].single).getOrElse(0.0)
+  }
+
+  def montantTotalEncaisse(): Double = withConnection { implicit conn =>
+    SQL"SELECT SUM(montant_paye) FROM paiements".as(scalar[Option[Double]].single).getOrElse(0.0)
+  }
+
+  def montantRestant(): Double = withConnection { implicit conn =>
+    SQL"SELECT SUM(montant_total - montant_paye) FROM paiements".as(scalar[Option[Double]].single).getOrElse(0.0)
+  }
+
+  def tauxRecouvrement(): Double = {
+    val total = montantTotalAttendu()
+    if (total == 0) 0.0 else (montantTotalEncaisse() / total) * 100
+  }
+
+  def totalPayeRecursif(paiements: List[Paiement]): Double = paiements match {
+    case Nil => 0.0
+    case head :: tail => head.montantPaye + totalPayeRecursif(tail)
+  }
 }

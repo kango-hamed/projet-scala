@@ -1,65 +1,93 @@
 package universite.repositories
 
-import universite.models.{Etudiant, StatutEtudiant, Actif, Suspendu}
-import universite.traits._
-import scala.util.Try
+import universite.models.{Etudiant, StatutEtudiant}
+import javax.inject.{Inject, Singleton}
+import play.api.db.Database
+import anorm._
+import anorm.SqlParser._
 
 // ─────────────────────────────────────────────
 // Repository : Etudiant
+// Gestion des étudiants avec PostgreSQL et Anorm
 // ─────────────────────────────────────────────
-class EtudiantRepository(val cheminFichier: String = "data/etudiants.csv")
-    extends BaseRepository[Etudiant] {
+@Singleton
+class EtudiantRepository @Inject()(val db: Database) extends BaseRepository {
 
-  override def parseLigne(ligne: String): Option[Etudiant] =
-    Etudiant.fromCSV(ligne)
+  private val parser = {
+    get[String]("matricule") ~
+    get[String]("nom") ~
+    get[String]("prenom") ~
+    get[String]("sexe") ~
+    get[String]("date_naissance") ~
+    get[String]("email") ~
+    get[String]("telephone") ~
+    get[String]("filiere") ~
+    get[String]("niveau") ~
+    get[String]("annee") ~
+    get[String]("statut") map {
+      case mat ~ nom ~ prenom ~ sexe ~ dn ~ email ~ tel ~ fil ~ niv ~ an ~ statut =>
+        Etudiant(mat, nom, prenom, sexe, dn, email, tel, fil, niv, an, StatutEtudiant.fromString(statut))
+    }
+  }
 
-  // ── Requêtes spécialisées ─────────────────
+  def tousLesEtudiants(): List[Etudiant] = withConnection { implicit conn =>
+    SQL"SELECT * FROM etudiants".as(parser.*)
+  }
 
-  def tousLesEtudiants(): List[Etudiant] =
-    chargerOuVide()
+  def trouverParMatricule(matricule: String): Option[Etudiant] = withConnection { implicit conn =>
+    SQL"SELECT * FROM etudiants WHERE matricule = $matricule".as(parser.singleOpt)
+  }
 
-  def trouverParMatricule(matricule: String): Option[Etudiant] =
-    chargerOuVide().find(_.matricule == matricule)
+  def parFiliere(filiere: String): List[Etudiant] = withConnection { implicit conn =>
+    SQL"SELECT * FROM etudiants WHERE filiere = $filiere".as(parser.*)
+  }
 
-  def parFiliere(filiere: String): List[Etudiant] =
-    chargerOuVide().filter(_.filiere.equalsIgnoreCase(filiere))
+  def parNiveau(niveau: String): List[Etudiant] = withConnection { implicit conn =>
+    SQL"SELECT * FROM etudiants WHERE niveau = $niveau".as(parser.*)
+  }
 
-  def parNiveau(niveau: String): List[Etudiant] =
-    chargerOuVide().filter(_.niveau.equalsIgnoreCase(niveau))
+  def parFiliereEtNiveau(filiere: String, niveau: String): List[Etudiant] = withConnection { implicit conn =>
+    SQL"SELECT * FROM etudiants WHERE filiere = $filiere AND niveau = $niveau".as(parser.*)
+  }
 
-  def parFiliereEtNiveau(filiere: String, niveau: String): List[Etudiant] =
-    chargerOuVide().filter(e =>
-      e.filiere.equalsIgnoreCase(filiere) && e.niveau.equalsIgnoreCase(niveau)
-    )
+  def etudiantsActifs(): List[Etudiant] = withConnection { implicit conn =>
+    SQL"SELECT * FROM etudiants WHERE statut = 'actif'".as(parser.*)
+  }
 
-  def etudiantsActifs(): List[Etudiant] =
-    chargerOuVide().filter(_.statut == Actif)
+  def etudiantsSuspendus(): List[Etudiant] = withConnection { implicit conn =>
+    SQL"SELECT * FROM etudiants WHERE statut = 'suspendu'".as(parser.*)
+  }
 
-  def etudiantsSuspendus(): List[Etudiant] =
-    chargerOuVide().filter(_.statut == Suspendu)
+  def parStatut(statut: StatutEtudiant): List[Etudiant] = withConnection { implicit conn =>
+    val statutStr = statut.toString.toLowerCase
+    SQL"SELECT * FROM etudiants WHERE statut = $statutStr".as(parser.*)
+  }
 
-  // Pattern matching sur le statut
-  def parStatut(statut: StatutEtudiant): List[Etudiant] =
-    chargerOuVide().filter(_.statut == statut)
+  def filieresUniques(): Set[String] = withConnection { implicit conn =>
+    SQL"SELECT DISTINCT filiere FROM etudiants".as(scalar[String].*).toSet
+  }
 
-  // Filières uniques (utilise un Set)
-  def filieresUniques(): Set[String] =
-    chargerOuVide().map(_.filiere).toSet
+  def niveauxUniques(): Set[String] = withConnection { implicit conn =>
+    SQL"SELECT DISTINCT niveau FROM etudiants".as(scalar[String].*).toSet
+  }
 
-  // Niveaux uniques
-  def niveauxUniques(): Set[String] =
-    chargerOuVide().map(_.niveau).toSet
+  def compterActifs(): Int = withConnection { implicit conn =>
+    SQL"SELECT COUNT(*) FROM etudiants WHERE statut = 'actif'".as(scalar[Long].single).toInt
+  }
 
-  // Comptages
-  def compterActifs(): Int     = etudiantsActifs().size
-  def compterSuspendus(): Int  = etudiantsSuspendus().size
-  def compterTotal(): Int      = chargerOuVide().size
+  def compterSuspendus(): Int = withConnection { implicit conn =>
+    SQL"SELECT COUNT(*) FROM etudiants WHERE statut = 'suspendu'".as(scalar[Long].single).toInt
+  }
 
-  // Grouper par filière : Map[String, List[Etudiant]]
-  def grouperParFiliere(): Map[String, List[Etudiant]] =
-    chargerOuVide().groupBy(_.filiere)
+  def compterTotal(): Int = withConnection { implicit conn =>
+    SQL"SELECT COUNT(*) FROM etudiants".as(scalar[Long].single).toInt
+  }
 
-  // Grouper par niveau
-  def grouperParNiveau(): Map[String, List[Etudiant]] =
-    chargerOuVide().groupBy(_.niveau)
+  def grouperParFiliere(): Map[String, List[Etudiant]] = {
+    tousLesEtudiants().groupBy(_.filiere)
+  }
+
+  def grouperParNiveau(): Map[String, List[Etudiant]] = {
+    tousLesEtudiants().groupBy(_.niveau)
+  }
 }

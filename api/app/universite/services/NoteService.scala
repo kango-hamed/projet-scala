@@ -8,10 +8,10 @@ import universite.traits._
 // Service : NoteService
 // Logique métier sur les notes et moyennes
 // ─────────────────────────────────────────────
-class NoteService(
-  noteRepo    : NoteRepository     = new NoteRepository(),
-  etudRepo    : EtudiantRepository = new EtudiantRepository(),
-  matiereRepo : MatiereRepository  = new MatiereRepository()
+class NoteService @javax.inject.Inject()(
+  val noteRepo    : NoteRepository,
+  val etudRepo    : EtudiantRepository,
+  val matiereRepo : MatiereRepository
 ) extends Calculable {
 
   // ── Moyennes ─────────────────────────────

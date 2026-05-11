@@ -7,10 +7,10 @@ import universite.traits._
 // ─────────────────────────────────────────────
 // Service : EnseignantService
 // ─────────────────────────────────────────────
-class EnseignantService(
-  ensRepo     : EnseignantRepository = new EnseignantRepository(),
-  matiereRepo : MatiereRepository    = new MatiereRepository(),
-  seanceRepo  : SeanceCoursRepository = new SeanceCoursRepository()
+class EnseignantService @javax.inject.Inject()(
+  val ensRepo     : EnseignantRepository,
+  val matiereRepo : MatiereRepository,
+  val seanceRepo  : SeanceCoursRepository
 ) {
 
   def tousLesEnseignants(): List[Enseignant] =
@@ -67,11 +67,11 @@ class EnseignantService(
 // ─────────────────────────────────────────────
 // Service : EmploiDuTempsService
 // ─────────────────────────────────────────────
-class EmploiDuTempsService(
-  seanceRepo  : SeanceCoursRepository = new SeanceCoursRepository(),
-  matiereRepo : MatiereRepository     = new MatiereRepository(),
-  ensRepo     : EnseignantRepository  = new EnseignantRepository(),
-  salleRepo   : SalleRepository       = new SalleRepository()
+class EmploiDuTempsService @javax.inject.Inject()(
+  val seanceRepo  : SeanceCoursRepository,
+  val matiereRepo : MatiereRepository,
+  val ensRepo     : EnseignantRepository,
+  val salleRepo   : SalleRepository
 ) {
 
   def emploiParFiliere(filiere: String): List[SeanceCours] =

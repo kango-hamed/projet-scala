@@ -7,10 +7,10 @@ import universite.services.FormationService
 import universite.controllers.JsonFormats._
 
 @Singleton
-class FormationController @Inject()(cc: ControllerComponents)
-    extends AbstractController(cc) {
-
-  private val service = new FormationService()
+class FormationController @Inject()(
+  cc: ControllerComponents,
+  service: FormationService
+) extends AbstractController(cc) {
 
   // GET /api/formations
   def listerToutes() = Action {

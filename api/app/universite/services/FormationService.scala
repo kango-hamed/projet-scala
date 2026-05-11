@@ -7,9 +7,9 @@ import universite.repositories._
 // Service : FormationService
 // Navigation dans la hiérarchie des formations
 // ─────────────────────────────────────────────
-class FormationService(
-  formationRepo: FormationRepository = new FormationRepository(),
-  matiereRepo: MatiereRepository   = new MatiereRepository()
+class FormationService @javax.inject.Inject()(
+  val formationRepo: FormationRepository,
+  val matiereRepo: MatiereRepository
 ) {
 
   // ─── Navigation hiérarchique ──────────────

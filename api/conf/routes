@@ -5,6 +5,19 @@
 # OPTIONS global pour le preflight CORS
 OPTIONS  /*path                                    universite.controllers.ApplicationController.preflight(path)
 
+# ── Authentification ─────────────────────────
+POST     /api/auth/login                           universite.controllers.AuthController.login()
+POST     /api/auth/register                        universite.controllers.AuthController.register()
+GET      /api/auth/me                              universite.controllers.AuthController.me()
+POST     /api/auth/logout                          universite.controllers.AuthController.logout()
+
+# ── Utilisateurs (protégé par auth) ──────────
+GET      /api/utilisateurs                         universite.controllers.UtilisateurController.listerTous()
+GET      /api/utilisateurs/:id                     universite.controllers.UtilisateurController.voirProfil(id: String)
+POST     /api/utilisateurs/:id/activer             universite.controllers.UtilisateurController.activer(id: String)
+POST     /api/utilisateurs/:id/suspendre           universite.controllers.UtilisateurController.suspendre(id: String)
+GET      /api/utilisateurs/profils/disponibles     universite.controllers.UtilisateurController.profilsDisponibles()
+
 # ── Health check ──────────────────────────────
 GET      /api/health                               universite.controllers.ApplicationController.health()
 
@@ -67,3 +80,6 @@ GET      /api/dashboard/taux-reussite              universite.controllers.Dashbo
 GET      /api/dashboard/top5                       universite.controllers.DashboardController.top5()
 GET      /api/dashboard/a-risque                   universite.controllers.DashboardController.etudiantsARisque()
 GET      /api/dashboard/finances                   universite.controllers.DashboardController.finances()
+
+# ── Migration ─────────────────────────────────
+GET      /api/migrate                              universite.controllers.MigrationController.migrate()

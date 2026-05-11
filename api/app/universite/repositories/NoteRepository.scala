@@ -1,49 +1,46 @@
 package universite.repositories
 
 import universite.models.Note
-import universite.traits._
+import javax.inject.{Inject, Singleton}
+import play.api.db.Database
+import anorm._
+import anorm.SqlParser._
 
 // ─────────────────────────────────────────────
 // Repository : Note
+// Gestion des notes avec PostgreSQL et Anorm
 // ─────────────────────────────────────────────
-class NoteRepository(val cheminFichier: String = "data/notes.csv")
-    extends BaseRepository[Note] {
+@Singleton
+class NoteRepository @Inject()(val db: Database) extends BaseRepository {
 
-  override def parseLigne(ligne: String): Option[Note] =
-    Note.fromCSV(ligne)
+  private val parser = {
+    get[String]("id_note") ~
+    get[String]("matricule") ~
+    get[String]("id_matiere") ~
+    get[Double]("controle_continu") ~
+    get[Double]("examen") map {
+      case id ~ mat ~ matId ~ cc ~ exam =>
+        Note(id, mat, matId, cc, exam)
+    }
+  }
 
-  // ── Requêtes spécialisées ─────────────────
+  def toutesLesNotes(): List[Note] = withConnection { implicit conn =>
+    SQL"SELECT * FROM notes".as(parser.*)
+  }
 
-  def toutesLesNotes(): List[Note] =
-    chargerOuVide()
+  def notesParEtudiant(matricule: String): List[Note] = withConnection { implicit conn =>
+    SQL"SELECT * FROM notes WHERE matricule = $matricule".as(parser.*)
+  }
 
-  def notesParEtudiant(matricule: String): List[Note] =
-    chargerOuVide().filter(_.matricule == matricule)
+  def notesParMatiere(idMatiere: String): List[Note] = withConnection { implicit conn =>
+    SQL"SELECT * FROM notes WHERE id_matiere = $idMatiere".as(parser.*)
+  }
 
-  def notesParMatiere(idMatiere: String): List[Note] =
-    chargerOuVide().filter(_.idMatiere == idMatiere)
+  def notesInvalides(): List[Note] = {
+    toutesLesNotes().filterNot(_.estValide)
+  }
 
-  // Notes invalides (CC ou examen hors [0,20])
-  def notesInvalides(): List[Note] =
-    chargerOuVide().filterNot(_.estValide)
-
-  // Notes valides uniquement
-  def notesValides(): List[Note] =
-    chargerOuVide().filter(_.estValide)
-
-  // Grouper par étudiant : Map[String, List[Note]]
-  def grouperParEtudiant(): Map[String, List[Note]] =
-    chargerOuVide().groupBy(_.matricule)
-
-  // Grouper par matière
-  def grouperParMatiere(): Map[String, List[Note]] =
-    chargerOuVide().groupBy(_.idMatiere)
-
-  // Étudiants ayant des notes pour une matière donnée
-  def etudiantsAvecNotesPour(idMatiere: String): List[String] =
-    notesParMatiere(idMatiere).map(_.matricule)
-
-  // Vérifier si un étudiant a une note pour une matière
-  def aNoteFor(matricule: String, idMatiere: String): Boolean =
-    chargerOuVide().exists(n => n.matricule == matricule && n.idMatiere == idMatiere)
+  def notesValides(): List[Note] = {
+    toutesLesNotes().filter(_.estValide)
+  }
 }

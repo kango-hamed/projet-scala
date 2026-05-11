@@ -9,10 +9,10 @@ import universite.controllers.JsonFormats._
 import universite.traits._
 
 @Singleton
-class DashboardController @Inject()(cc: ControllerComponents)
-    extends AbstractController(cc) {
-
-  private val dashboard = new TableauBord()
+class DashboardController @Inject()(
+  cc: ControllerComponents,
+  dashboard: TableauBord
+) extends AbstractController(cc) {
 
   // GET /api/dashboard  — tous les indicateurs d'un coup
   def indicateurs() = Action {

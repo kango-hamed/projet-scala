@@ -8,10 +8,10 @@ import universite.controllers.JsonFormats._
 import universite.traits._
 
 @Singleton
-class EtudiantController @Inject()(cc: ControllerComponents)
-    extends AbstractController(cc) {
-
-  private val service = new EtudiantService()
+class EtudiantController @Inject()(
+  cc: ControllerComponents,
+  service: EtudiantService
+) extends AbstractController(cc) {
 
   // GET /api/etudiants
   def listerTous() = Action {

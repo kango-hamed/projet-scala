@@ -11,10 +11,10 @@ import universite.traits._
 // AbsenceController
 // ──────────────────────────────────────────────
 @Singleton
-class AbsenceController @Inject()(cc: ControllerComponents)
-    extends AbstractController(cc) {
-
-  private val service = new AbsenceService()
+class AbsenceController @Inject()(
+  cc: ControllerComponents,
+  service: AbsenceService
+) extends AbstractController(cc) {
 
   // GET /api/absences
   def toutesAbsences() = Action {
@@ -80,10 +80,10 @@ class AbsenceController @Inject()(cc: ControllerComponents)
 // PaiementController
 // ──────────────────────────────────────────────
 @Singleton
-class PaiementController @Inject()(cc: ControllerComponents)
-    extends AbstractController(cc) {
-
-  private val service = new PaiementService()
+class PaiementController @Inject()(
+  cc: ControllerComponents,
+  service: PaiementService
+) extends AbstractController(cc) {
 
   // GET /api/paiements/:matricule
   def paiementEtudiant(matricule: String) = Action {
@@ -139,10 +139,10 @@ class PaiementController @Inject()(cc: ControllerComponents)
 // EnseignantController
 // ──────────────────────────────────────────────
 @Singleton
-class EnseignantController @Inject()(cc: ControllerComponents)
-    extends AbstractController(cc) {
-
-  private val service = new EnseignantService()
+class EnseignantController @Inject()(
+  cc: ControllerComponents,
+  service: EnseignantService
+) extends AbstractController(cc) {
 
   // GET /api/enseignants
   def listerTous() = Action {
@@ -180,10 +180,10 @@ class EnseignantController @Inject()(cc: ControllerComponents)
 // EmploiDuTempsController
 // ──────────────────────────────────────────────
 @Singleton
-class EmploiDuTempsController @Inject()(cc: ControllerComponents)
-    extends AbstractController(cc) {
-
-  private val service = new EmploiDuTempsService()
+class EmploiDuTempsController @Inject()(
+  cc: ControllerComponents,
+  service: EmploiDuTempsService
+) extends AbstractController(cc) {
 
   // GET /api/emploi-du-temps/filiere/:filiere
   def parFiliere(filiere: String) = Action {

@@ -8,7 +8,7 @@ import universite.traits._
 // Service : EtudiantService
 // Logique métier sur les étudiants
 // ─────────────────────────────────────────────
-class EtudiantService(repo: EtudiantRepository = new EtudiantRepository()) {
+class EtudiantService @javax.inject.Inject()(val repo: EtudiantRepository) {
 
   // ── Recherche ────────────────────────────
 
