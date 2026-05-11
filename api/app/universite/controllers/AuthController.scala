@@ -3,7 +3,8 @@ package universite.controllers
 import play.api.mvc._
 import play.api.libs.json._
 import javax.inject._
-import universite.services.AuthService
+import universite.services.{AuthService, RateLimiterService}
+import play.api.http.HttpEntity
 import universite.models._
 import universite.controllers.JsonFormats._
 
@@ -14,7 +15,8 @@ import universite.controllers.JsonFormats._
 @Singleton
 class AuthController @Inject()(
   cc: ControllerComponents,
-  authService: AuthService
+  authService: AuthService,
+  rateLimiter: RateLimiterService
 ) extends AbstractController(cc) {
 
   implicit val loginReads: Reads[LoginRequest] = Json.reads[LoginRequest]
@@ -22,27 +24,41 @@ class AuthController @Inject()(
 
   // ─── POST /api/auth/login ───────────────────
   def login = Action(parse.json) { request =>
-    request.body.validate[LoginRequest].fold(
-      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
-      login => {
-        authService.authentifier(login.email, login.password) match {
-          case Left(error) => Unauthorized(Json.obj("success" -> false, "erreur" -> error))
-          case Right((utilisateur, token)) =>
-            Ok(Json.obj(
-              "success" -> true,
-              "token" -> token,
-              "utilisateur" -> Json.obj(
-                "id" -> utilisateur.idUtilisateur,
-                "email" -> utilisateur.email,
-                "role" -> utilisateur.role.code,
-                "roleNom" -> utilisateur.role.nom,
-                "idProfil" -> utilisateur.idProfil,
-                "actif" -> utilisateur.actif
-              )
-            ))
+    val clientIP = request.remoteAddress
+    
+    // Vérifier rate limiting
+    if (!rateLimiter.peutTenter(clientIP)) {
+      val attente = rateLimiter.tempsAttente(clientIP)
+      TooManyRequests(Json.obj(
+        "success" -> false,
+        "erreur" -> s"Trop de tentatives. Réessayez dans ${attente / 60} minutes."
+      ))
+    } else {
+      request.body.validate[LoginRequest].fold(
+        errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
+        login => {
+          authService.authentifier(login.email, login.password) match {
+            case Left(error) => 
+              rateLimiter.enregistrerEchec(clientIP)
+              Unauthorized(Json.obj("success" -> false, "erreur" -> rateLimiter.messageErreur(clientIP)))
+            case Right((utilisateur, token)) =>
+              rateLimiter.enregistrerSucces(clientIP)
+              Ok(Json.obj(
+                "success" -> true,
+                "token" -> token,
+                "utilisateur" -> Json.obj(
+                  "id" -> utilisateur.idUtilisateur,
+                  "email" -> utilisateur.email,
+                  "role" -> utilisateur.role.code,
+                  "roleNom" -> utilisateur.role.nom,
+                  "idProfil" -> utilisateur.idProfil,
+                  "actif" -> utilisateur.actif
+                )
+              ))
+          }
         }
-      }
-    )
+      )
+    }
   }
 
   // ─── POST /api/auth/register ────────────────

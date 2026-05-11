@@ -5,6 +5,7 @@ import universite.repositories._
 import org.mindrot.jbcrypt.BCrypt
 import pdi.jwt.{Jwt, JwtAlgorithm, JwtClaim}
 import play.api.libs.json._
+import play.api.Configuration
 import java.time.Instant
 import scala.util.{Try, Success, Failure}
 
@@ -13,13 +14,14 @@ import scala.util.{Try, Success, Failure}
 // Gestion de l'authentification JWT et des mots de passe
 // ─────────────────────────────────────────────
 class AuthService @javax.inject.Inject()(
-  userRepo: UtilisateurRepository
+  userRepo: UtilisateurRepository,
+  config: Configuration
 ) {
 
   // ─── Configuration JWT ────────────────────
-  private val SECRET_KEY = "votre-cle-super-secrete-changez-en-production"
+  private val SECRET_KEY = config.get[String]("jwt.secret")
   private val ALGORITHM = JwtAlgorithm.HS256
-  private val TOKEN_EXPIRATION = 86400 // 24 heures en secondes
+  private val TOKEN_EXPIRATION = config.get[Int]("jwt.expiration")
 
   // ─── Hashage des mots de passe (bcrypt) ─────
 
@@ -42,6 +44,7 @@ class AuthService @javax.inject.Inject()(
     )
       .issuedAt(Instant.now().getEpochSecond)
       .expiresAt(Instant.now().getEpochSecond + TOKEN_EXPIRATION)
+      .startsAt(Instant.now().getEpochSecond)
 
     Jwt.encode(claim, SECRET_KEY, ALGORITHM)
   }
