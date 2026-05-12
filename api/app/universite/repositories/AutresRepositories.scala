@@ -240,9 +240,11 @@ class SeanceCoursRepository @Inject()(val db: Database) extends BaseRepository {
     get[String]("heure_debut") ~
     get[String]("heure_fin") ~
     get[String]("filiere") ~
-    get[String]("niveau") map {
-      case id ~ mat ~ ens ~ sal ~ jr ~ hd ~ hf ~ fil ~ niv =>
-        SeanceCours(id, mat, ens, sal, jr, hd, hf, fil, niv)
+    get[String]("niveau") ~
+    get[String]("id_semestre") ~
+    get[Int]("nb_semaines") map {
+      case id ~ mat ~ ens ~ sal ~ jr ~ hd ~ hf ~ fil ~ niv ~ sem ~ nb =>
+        SeanceCours(id, mat, ens, sal, jr, hd, hf, fil, niv, sem, nb)
     }
   }
 
@@ -270,6 +272,22 @@ class SeanceCoursRepository @Inject()(val db: Database) extends BaseRepository {
       b <- seances
       if a.idSeance < b.idSeance && a.enConflit(b)
     } yield (a, b)
+  }
+
+  // ─── CRUD Operations ────────────────────────
+  def creer(seance: SeanceCours): Boolean = {
+    scala.util.Try {
+      withConnection { implicit conn =>
+        SQL"""
+          INSERT INTO seances_cours (id_seance, id_matiere, id_enseignant, id_salle, jour, heure_debut, heure_fin, filiere, niveau, id_semestre, nb_semaines)
+          VALUES (${seance.idSeance}, ${seance.idMatiere}, ${seance.idEnseignant}, ${seance.idSalle}, ${seance.jour}, ${seance.heureDebut}, ${seance.heureFin}, ${seance.filiere}, ${seance.niveau}, ${seance.idSemestre}, ${seance.nbSemaines})
+        """.executeUpdate() > 0
+      }
+    }.getOrElse(false)
+  }
+
+  def supprimer(idSeance: String): Boolean = withConnection { implicit conn =>
+    SQL"DELETE FROM seances_cours WHERE id_seance = $idSeance".executeUpdate() > 0
   }
 }
 

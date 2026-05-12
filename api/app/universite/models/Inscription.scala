@@ -74,27 +74,30 @@ case class SeanceCours(
   heureDebut   : String,
   heureFin     : String,
   filiere      : String,
-  niveau       : String
+  niveau       : String,
+  idSemestre   : String,
+  nbSemaines   : Int
 ) extends Identifiable with Affichable {
 
   override def id: String = idSeance
 
   override def afficher(): Unit =
-    println(s"  [$idSeance] $jour $heureDebut-$heureFin  |  $idMatiere  |  Salle: $idSalle  |  $filiere ($niveau)")
+    println(s"  [$idSeance] $jour $heureDebut-$heureFin  |  $idMatiere  |  Salle: $idSalle  |  $filiere ($niveau - $idSemestre) | x$nbSemaines semaines")
 
   // Vérifie si deux séances sont en conflit (même salle, même jour, chevauchement horaire)
   def enConflit(autre: SeanceCours): Boolean =
     this.idSalle == autre.idSalle &&
     this.jour    == autre.jour    &&
+    this.idSemestre == autre.idSemestre &&
     this.idSeance != autre.idSeance &&
     !(this.heureFin <= autre.heureDebut || autre.heureFin <= this.heureDebut)
 }
 
 object SeanceCours {
-  // id_seance,matiere,enseignant,salle,jour,heure_debut,heure_fin,filiere,niveau
+  // id_seance,matiere,enseignant,salle,jour,heure_debut,heure_fin,filiere,niveau,idSemestre,nbSemaines
   def fromCSV(ligne: String): Option[SeanceCours] = {
     val cols = ligne.split(",").map(_.trim)
-    if (cols.length < 9) None
-    else Some(SeanceCours(cols(0), cols(1), cols(2), cols(3), cols(4), cols(5), cols(6), cols(7), cols(8)))
+    if (cols.length < 11) None
+    else Some(SeanceCours(cols(0), cols(1), cols(2), cols(3), cols(4), cols(5), cols(6), cols(7), cols(8), cols(9), cols(10).toInt))
   }
 }

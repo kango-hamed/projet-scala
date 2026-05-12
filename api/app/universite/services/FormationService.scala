@@ -42,8 +42,12 @@ class FormationService @javax.inject.Inject()(
   }
   
   def matieresParUE(idUE: String): List[Matiere] = {
-    val toutesMatieres = matiereRepo.toutesLesMatieres()
-    toutesMatieres.filter(m => m.ue == idUE)
+    formationRepo.trouverUEParId(idUE) match {
+      case None => List.empty
+      case Some(ue) =>
+        val toutesMatieres = matiereRepo.toutesLesMatieres()
+        toutesMatieres.filter(m => ue.matieres.contains(m.idMatiere))
+    }
   }
   
   // ─── Statistiques ─────────────────────────

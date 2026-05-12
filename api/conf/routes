@@ -124,9 +124,12 @@ PUT      /api/inscriptions/:id                     universite.controllers.Inscri
 DELETE   /api/inscriptions/:id                     universite.controllers.InscriptionController.supprimer(id: String)
 
 # ── Emploi du temps ───────────────────────────
-# GET      /api/emploi-du-temps/filiere/:filiere     universite.controllers.EmploiDuTempsController.parFiliere(filiere: String)
-# GET      /api/emploi-du-temps/enseignant/:id       universite.controllers.EmploiDuTempsController.parEnseignant(id: String)
-# GET      /api/emploi-du-temps/conflits             universite.controllers.EmploiDuTempsController.conflits()
+GET      /api/emploi-du-temps                      universite.controllers.EmploiDuTempsController.listerTous()
+POST     /api/emploi-du-temps                      universite.controllers.EmploiDuTempsController.creer()
+GET      /api/emploi-du-temps/filiere/:filiere     universite.controllers.EmploiDuTempsController.parFiliere(filiere: String)
+GET      /api/emploi-du-temps/enseignant/:id       universite.controllers.EmploiDuTempsController.parEnseignant(id: String)
+GET      /api/emploi-du-temps/conflits             universite.controllers.EmploiDuTempsController.conflits()
+DELETE   /api/emploi-du-temps/:id                  universite.controllers.EmploiDuTempsController.supprimer(id: String)
 
 # ── Dashboard ─────────────────────────────────
 GET      /api/dashboard                            universite.controllers.DashboardController.indicateurs()
