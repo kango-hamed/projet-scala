@@ -93,11 +93,15 @@ class EtudiantRepository @Inject()(val db: Database) extends BaseRepository {
 
   // ─── CRUD Operations ────────────────────────
 
-  def creer(etudiant: Etudiant): Boolean = withConnection { implicit conn =>
-    SQL"""
-      INSERT INTO etudiants (matricule, nom, prenom, sexe, date_naissance, email, telephone, filiere, niveau, annee, statut)
-      VALUES (${etudiant.matricule}, ${etudiant.nom}, ${etudiant.prenom}, ${etudiant.sexe}, ${etudiant.dateNaissance}, ${etudiant.email}, ${etudiant.telephone}, ${etudiant.filiere}, ${etudiant.niveau}, ${etudiant.annee}, ${etudiant.statut.toString.toLowerCase})
-    """.executeUpdate() > 0
+  def creer(etudiant: Etudiant): Boolean = {
+    scala.util.Try {
+      withConnection { implicit conn =>
+        SQL"""
+          INSERT INTO etudiants (matricule, nom, prenom, sexe, date_naissance, email, telephone, filiere, niveau, annee, statut)
+          VALUES (${etudiant.matricule}, ${etudiant.nom}, ${etudiant.prenom}, ${etudiant.sexe}, ${etudiant.dateNaissance}, ${etudiant.email}, ${etudiant.telephone}, ${etudiant.filiere}, ${etudiant.niveau}, ${etudiant.annee}, ${etudiant.statut.toString.toLowerCase})
+        """.executeUpdate() > 0
+      }
+    }.getOrElse(false)
   }
 
   def mettreAJour(matricule: String, etudiant: Etudiant): Boolean = withConnection { implicit conn =>

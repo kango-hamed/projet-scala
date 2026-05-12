@@ -63,12 +63,13 @@ class InscriptionController @Inject()(
 
   // POST /api/inscriptions → CREATE
   def creer = adminAction(parse.json) { request =>
-    request.body.validate[Inscription].fold(
-      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
+    val idGenere = "INS-" + java.util.UUID.randomUUID().toString.substring(0, 8).toUpperCase
+    val jsonBody = request.body.as[JsObject] ++ Json.obj("idInscription" -> idGenere)
+
+    jsonBody.validate[Inscription].fold(
+      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide", "details" -> errors.toString)),
       inscription => {
-        if (inscriptionRepo.idExiste(inscription.idInscription)) {
-          BadRequest(Json.obj("success" -> false, "erreur" -> s"L'inscription '${inscription.idInscription}' existe déjà"))
-        } else if (inscriptionRepo.estDejaInscrit(inscription.matricule, inscription.annee)) {
+        if (inscriptionRepo.estDejaInscrit(inscription.matricule, inscription.annee)) {
           BadRequest(Json.obj("success" -> false, "erreur" -> s"L'etudiant '${inscription.matricule}' est déjà inscrit pour l'annee ${inscription.annee}"))
         } else if (inscriptionRepo.creer(inscription)) {
           Created(Json.obj("success" -> true, "message" -> "Inscription créée avec succès", "data" -> inscription))

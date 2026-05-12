@@ -144,17 +144,16 @@ class NoteController @Inject()(
 
   // POST /api/notes → CREATE
   def creer = adminAction(parse.json) { request =>
-    request.body.validate[Note].fold(
-      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
+    val idGenere = "NOT-" + java.util.UUID.randomUUID().toString.substring(0, 8).toUpperCase
+    val jsonBody = request.body.as[JsObject] ++ Json.obj("idNote" -> idGenere)
+
+    jsonBody.validate[Note].fold(
+      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide", "details" -> errors.toString)),
       note => {
-        if (noteRepo.idExiste(note.idNote)) {
-          BadRequest(Json.obj("success" -> false, "erreur" -> s"La note '${note.idNote}' existe déjà"))
+        if (noteRepo.creer(note)) {
+          Created(Json.obj("success" -> true, "message" -> "Note créée avec succès", "data" -> note))
         } else {
-          if (noteRepo.creer(note)) {
-            Created(Json.obj("success" -> true, "message" -> "Note créée avec succès", "data" -> note))
-          } else {
-            InternalServerError(Json.obj("success" -> false, "erreur" -> "Erreur lors de la création de la note"))
-          }
+          InternalServerError(Json.obj("success" -> false, "erreur" -> "Erreur lors de la création de la note"))
         }
       }
     )

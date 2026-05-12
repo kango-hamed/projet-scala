@@ -91,13 +91,16 @@ class EnseignantController @Inject()(
 
   // POST /api/enseignants → CREATE
   def creer = adminAction(parse.json) { request =>
-    request.body.validate[Enseignant].fold(
-      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
+    // Génération sécurisée du matricule (ex: ENS-4F2A9B1C)
+    val idGenere = "ENS-" + java.util.UUID.randomUUID().toString.substring(0, 8).toUpperCase
+    
+    // On injecte cet ID de force dans le JSON reçu, ignorant ce que le frontend a pu envoyer
+    val jsonBody = request.body.as[JsObject] ++ Json.obj("idEnseignant" -> idGenere)
+
+    jsonBody.validate[Enseignant].fold(
+      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide", "details" -> errors.toString)),
       enseignant => {
-        // Vérifier si l'ID existe déjà
-        if (enseignantRepo.idExiste(enseignant.idEnseignant)) {
-          BadRequest(Json.obj("success" -> false, "erreur" -> s"L'enseignant avec l'ID '${enseignant.idEnseignant}' existe déjà"))
-        } else if (enseignantRepo.emailExiste(enseignant.email)) {
+        if (enseignantRepo.emailExiste(enseignant.email)) {
           BadRequest(Json.obj("success" -> false, "erreur" -> s"L'email '${enseignant.email}' est déjà utilisé"))
         } else {
           if (enseignantRepo.creer(enseignant)) {

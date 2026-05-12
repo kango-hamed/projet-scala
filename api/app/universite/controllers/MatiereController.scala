@@ -47,7 +47,7 @@ class MatiereController @Inject()(
   // POST /api/matieres → CREATE
   def creer = adminAction(parse.json) { request =>
     request.body.validate[Matiere].fold(
-      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
+      errors => BadRequest(Json.obj("success" -> false, "erreur" -> s"JSON invalide: $errors")),
       matiere => {
         if (matiereRepo.idExiste(matiere.idMatiere)) {
           BadRequest(Json.obj("success" -> false, "erreur" -> s"La matiere '${matiere.idMatiere}' existe déjà"))
@@ -63,7 +63,7 @@ class MatiereController @Inject()(
   // PUT /api/matieres/:id → UPDATE
   def mettreAJour(id: String) = adminAction(parse.json) { request =>
     request.body.validate[Matiere].fold(
-      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
+      errors => BadRequest(Json.obj("success" -> false, "erreur" -> s"JSON invalide: $errors")),
       matiere => {
         matiereRepo.trouverParId(id) match {
           case None => NotFound(Json.obj("success" -> false, "erreur" -> s"Matiere '$id' introuvable"))

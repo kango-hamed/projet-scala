@@ -44,11 +44,15 @@ class EnseignantRepository @Inject()(val db: Database) extends BaseRepository {
 
   // ─── CRUD Operations ────────────────────────
 
-  def creer(enseignant: Enseignant): Boolean = withConnection { implicit conn =>
-    SQL"""
-      INSERT INTO enseignants (id_enseignant, nom, prenom, grade, specialite, departement, email, telephone)
-      VALUES (${enseignant.idEnseignant}, ${enseignant.nom}, ${enseignant.prenom}, ${enseignant.grade}, ${enseignant.specialite}, ${enseignant.departement}, ${enseignant.email}, ${enseignant.telephone})
-    """.executeUpdate() > 0
+  def creer(enseignant: Enseignant): Boolean = {
+    scala.util.Try {
+      withConnection { implicit conn =>
+        SQL"""
+          INSERT INTO enseignants (id_enseignant, nom, prenom, grade, specialite, departement, email, telephone)
+          VALUES (${enseignant.idEnseignant}, ${enseignant.nom}, ${enseignant.prenom}, ${enseignant.grade}, ${enseignant.specialite}, ${enseignant.departement}, ${enseignant.email}, ${enseignant.telephone})
+        """.executeUpdate() > 0
+      }
+    }.getOrElse(false)
   }
 
   def mettreAJour(id: String, enseignant: Enseignant): Boolean = withConnection { implicit conn =>

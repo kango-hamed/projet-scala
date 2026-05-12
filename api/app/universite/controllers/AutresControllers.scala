@@ -85,12 +85,13 @@ class AbsenceController @Inject()(
   // ─── CRUD Operations ──────────────────────
 
   def creer = adminAction(parse.json) { request =>
-    request.body.validate[Absence].fold(
-      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
+    val idGenere = "ABS-" + java.util.UUID.randomUUID().toString.substring(0, 8).toUpperCase
+    val jsonBody = request.body.as[JsObject] ++ Json.obj("idAbsence" -> idGenere)
+
+    jsonBody.validate[Absence].fold(
+      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide", "details" -> errors.toString)),
       absence => {
-        if (absenceRepo.idExiste(absence.idAbsence)) {
-          BadRequest(Json.obj("success" -> false, "erreur" -> s"L'absence '${absence.idAbsence}' existe déjà"))
-        } else if (absenceRepo.creer(absence)) {
+        if (absenceRepo.creer(absence)) {
           Created(Json.obj("success" -> true, "message" -> "Absence créée avec succès", "data" -> absence))
         } else {
           InternalServerError(Json.obj("success" -> false, "erreur" -> "Erreur lors de la création de l'absence"))
@@ -195,12 +196,13 @@ class PaiementController @Inject()(
   // ─── CRUD Operations ──────────────────────
 
   def creer = adminAction(parse.json) { request =>
-    request.body.validate[Paiement].fold(
-      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide")),
+    val idGenere = "PAI-" + java.util.UUID.randomUUID().toString.substring(0, 8).toUpperCase
+    val jsonBody = request.body.as[JsObject] ++ Json.obj("idPaiement" -> idGenere)
+
+    jsonBody.validate[Paiement].fold(
+      errors => BadRequest(Json.obj("success" -> false, "erreur" -> "JSON invalide", "details" -> errors.toString)),
       paiement => {
-        if (paiementRepo.idExiste(paiement.idPaiement)) {
-          BadRequest(Json.obj("success" -> false, "erreur" -> s"Le paiement '${paiement.idPaiement}' existe déjà"))
-        } else if (paiementRepo.creer(paiement)) {
+        if (paiementRepo.creer(paiement)) {
           Created(Json.obj("success" -> true, "message" -> "Paiement créé avec succès", "data" -> paiement))
         } else {
           InternalServerError(Json.obj("success" -> false, "erreur" -> "Erreur lors de la création du paiement"))

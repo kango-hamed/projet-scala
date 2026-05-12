@@ -28,10 +28,10 @@ class FormationController @Inject()(
 
   // GET /api/formations/:filiere/arbre
   def arbreFormation(filiere: String) = Action {
-    val arbre = service.obtenirArbreFormation(filiere)
-    if (arbre.isEmpty) 
+    if (!service.formationRepo.idFormationExiste(filiere)) {
       NotFound(notFound(s"Filière '$filiere' introuvable"))
-    else {
+    } else {
+      val arbre = service.obtenirArbreFormation(filiere)
       val jsonArbre = arbre.map { case (niveau, semestres) =>
         Json.obj(
           "niveau" -> Json.obj(
@@ -50,7 +50,16 @@ class FormationController @Inject()(
                   "id" -> ue.idUE,
                   "nom" -> ue.nomUE,
                   "coefficient" -> ue.coefficientTotal,
-                  "matieres" -> ue.matieres
+                  "matieres" -> service.matieresParUE(ue.idUE).map { m =>
+                    Json.obj(
+                      "id" -> m.idMatiere,
+                      "nom" -> m.nomMatiere,
+                      "ue" -> m.ue,
+                      "volumeHoraire" -> m.volumeHoraire,
+                      "coefficient" -> m.coefficient,
+                      "idEnseignant" -> m.idEnseignant
+                    )
+                  }
                 )
               }
             )
