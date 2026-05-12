@@ -5,6 +5,7 @@ import play.api.libs.json._
 import javax.inject._
 import universite.services.FormationService
 import universite.controllers.JsonFormats._
+import universite.models._
 
 @Singleton
 class FormationController @Inject()(

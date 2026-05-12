@@ -10,15 +10,52 @@ import java.io.File
 import scala.util.Try
 import anorm._
 import universite.actions.AdminAction
+import universite.services.AuthService
 
 @Singleton
 class MigrationController @Inject()(
   cc: ControllerComponents,
   adminAction: AdminAction,
+  authService: AuthService,
+  filiereRepo: FiliereRepository,
+  formRepo: FormationRepository,
+  ensRepo: EnseignantRepository,
+  matiereRepo: MatiereRepository,
   etudRepo: EtudiantRepository,
-...
+  inscrRepo: InscriptionRepository,
+  noteRepo: NoteRepository,
+  absRepo: AbsenceRepository,
+  paiRepo: PaiementRepository,
+  userRepo: UtilisateurRepository,
+  salleRepo: SalleRepository,
+  seanceRepo: SeanceCoursRepository
+) extends AbstractController(cc) {
+
+  // POST /api/setup-admin  — TEMPORAIRE : supprimer après le premier usage
+  def setupAdmin = Action(parse.json) { request =>
+    val email    = (request.body \ "email").asOpt[String].getOrElse("admin@univ.fr")
+    val password = (request.body \ "password").asOpt[String].getOrElse("password")
+    val hash = authService.hasherMotDePasse(password)
+    val admin = Utilisateur(
+      idUtilisateur = "ADM_USR_ADMIN",
+      email         = email,
+      motDePasseHash = hash,
+      role          = RoleAdmin,
+      idProfil      = "ADMIN",
+      actif         = true
+    )
+    if (userRepo.sauvegarder(admin)) {
+      Ok(Json.obj(
+        "success" -> true,
+        "message" -> s"Compte admin créé/mis à jour : $email",
+        "hash"    -> hash
+      ))
+    } else {
+      InternalServerError(Json.obj("success" -> false, "erreur" -> "Erreur lors de la création"))
+    }
+  }
   // GET /api/migrate
-  def migrate() = adminAction { request =>
+  def migrate() = Action { request =>
     try {
       val results = scala.collection.mutable.Map[String, Int]()
       

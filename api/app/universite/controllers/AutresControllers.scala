@@ -6,6 +6,7 @@ import javax.inject._
 import universite.services._
 import universite.controllers.JsonFormats._
 import universite.traits._
+import universite.models._
 import universite.actions.{AuthAction, AdminAction}
 
 // ──────────────────────────────────────────────

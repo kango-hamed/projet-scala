@@ -92,7 +92,7 @@ class EtudiantController @Inject()(
           "success" -> true,
           "data" -> Json.obj(
             "etudiant" -> e,
-            "actif" -> e.estActif
+            "actif" -> (e.statut == Actif)
           )
         ))
         case None => NotFound(notFound(s"Étudiant '${request.utilisateur.idProfil}' introuvable"))

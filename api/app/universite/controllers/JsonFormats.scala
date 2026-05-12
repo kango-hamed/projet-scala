@@ -27,6 +27,7 @@ object JsonFormats {
 
   // ── Sealed traits → String ────────────────
 
+  implicit val statutEtudiantReads: Reads[StatutEtudiant] = Reads { js => js.validate[String].map(StatutEtudiant.fromString) }
   implicit val statutEtudiantWrites: Writes[StatutEtudiant] =
     Writes[StatutEtudiant] {
       case Actif     => JsString("Actif")
@@ -42,6 +43,7 @@ object JsonFormats {
       case Redoublement => JsString("Redoublement")
     }
 
+  implicit val statutInscriptionReads: Reads[StatutInscription] = Reads { js => js.validate[String].map(StatutInscription.fromString) }
   implicit val statutInscriptionWrites: Writes[StatutInscription] =
     Writes[StatutInscription] {
       case Validee   => JsString("Validée")
@@ -64,6 +66,12 @@ object JsonFormats {
 
   // ── Formation hiérarchie ─────────────────
 
+  implicit val niveauEtudesReads: Reads[NiveauEtudes] = Reads { js => 
+    (js \ "nom").validateOpt[String].flatMap {
+      case Some(n) => JsSuccess(NiveauEtudes.fromString(n))
+      case None => js.validate[String].map(NiveauEtudes.fromString)
+    }
+  }
   implicit val niveauEtudesWrites: Writes[NiveauEtudes] =
     Writes[NiveauEtudes] { ne =>
       Json.obj(

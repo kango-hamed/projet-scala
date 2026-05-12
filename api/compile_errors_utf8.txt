@@ -1,0 +1,115 @@
+﻿[info] welcome to sbt 1.9.7 (Oracle Corporation Java 17.0.12)
+[info] loading global plugins from C:\Users\hamed\.sbt\1.0\plugins
+[info] loading settings for project api-build from plugins.sbt ...
+[info] loading project definition from D:\school\projet-scala\gestion-universitaire-api\api\project
+[info] loading settings for project root from build.sbt ...
+[info]   __              __
+[info]   \ \     ____   / /____ _ __  __
+[info]    \ \   / __ \ / // __ `// / / /
+[info]    / /  / /_/ // // /_/ // /_/ /
+[info]   /_/  / .___//_/ \__,_/ \__, /
+[info]       /_/               /____/
+[info] 
+[info] Version 2.9.0 running Java 17.0.12
+[info] 
+[info] Play is run entirely by the community. Please consider contributing and/or donating:
+[info] https://www.playframework.com/sponsors
+[info] 
+[info] Executing in batch mode. For better performance use sbt's shell
+[info] compiling 52 Scala sources and 1 Java source to D:\school\projet-scala\gestion-universitaire-api\api\target\scala-2.13\classes ...
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\AutresControllers.scala:23:36: not found: type Absence
+[error]   implicit val absenceReads: Reads[Absence] = Json.reads[Absence]
+[error]                                    ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\AutresControllers.scala:23:58: not found: type Absence
+[error]   implicit val absenceReads: Reads[Absence] = Json.reads[Absence]
+[error]                                                          ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\AutresControllers.scala:87:27: not found: type Absence
+[error]     request.body.validate[Absence].fold(
+[error]                           ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\AutresControllers.scala:102:27: not found: type Absence
+[error]     request.body.validate[Absence].fold(
+[error]                           ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\AutresControllers.scala:143:37: not found: type Paiement
+[error]   implicit val paiementReads: Reads[Paiement] = Json.reads[Paiement]
+[error]                                     ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\AutresControllers.scala:143:60: not found: type Paiement
+[error]   implicit val paiementReads: Reads[Paiement] = Json.reads[Paiement]
+[error]                                                            ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\AutresControllers.scala:197:27: not found: type Paiement
+[error]     request.body.validate[Paiement].fold(
+[error]                           ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\AutresControllers.scala:212:27: not found: type Paiement
+[error]     request.body.validate[Paiement].fold(
+[error]                           ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\EtudiantController.scala:21:59: No instance of play.api.libs.json.Reads is available for universite.models.StatutEtudiant in the implicit scope (Hint: if declared in the same file, make sure it's declared before)
+[error]   implicit val etudiantReads: Reads[Etudiant] = Json.reads[Etudiant]
+[error]                                                           ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\EtudiantController.scala:95:26: value estActif is not a member of universite.models.Etudiant
+[error]             "actif" -> e.estActif
+[error]                          ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:17:38: not found: type Formation
+[error]   implicit val formationReads: Reads[Formation] = Json.reads[Formation]
+[error]                                      ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:17:62: not found: type Formation
+[error]   implicit val formationReads: Reads[Formation] = Json.reads[Formation]
+[error]                                                              ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:18:35: not found: type Niveau
+[error]   implicit val niveauReads: Reads[Niveau] = Json.reads[Niveau]
+[error]                                   ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:18:56: not found: type Niveau
+[error]   implicit val niveauReads: Reads[Niveau] = Json.reads[Niveau]
+[error]                                                        ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:19:37: not found: type Semestre
+[error]   implicit val semestreReads: Reads[Semestre] = Json.reads[Semestre]
+[error]                                     ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:19:60: not found: type Semestre
+[error]   implicit val semestreReads: Reads[Semestre] = Json.reads[Semestre]
+[error]                                                            ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:20:31: not found: type UniteEnseignement
+[error]   implicit val ueReads: Reads[UniteEnseignement] = Json.reads[UniteEnseignement]
+[error]                               ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:20:63: not found: type UniteEnseignement
+[error]   implicit val ueReads: Reads[UniteEnseignement] = Json.reads[UniteEnseignement]
+[error]                                                               ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:147:27: not found: type Formation
+[error]     request.body.validate[Formation].fold(
+[error]                           ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:162:27: not found: type Formation
+[error]     request.body.validate[Formation].fold(
+[error]                           ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:192:27: not found: type Niveau
+[error]     request.body.validate[Niveau].fold(
+[error]                           ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:207:27: not found: type Niveau
+[error]     request.body.validate[Niveau].fold(
+[error]                           ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:237:27: not found: type Semestre
+[error]     request.body.validate[Semestre].fold(
+[error]                           ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:252:27: not found: type Semestre
+[error]     request.body.validate[Semestre].fold(
+[error]                           ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:282:27: not found: type UniteEnseignement
+[error]     request.body.validate[UniteEnseignement].fold(
+[error]                           ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\FormationController.scala:297:27: not found: type UniteEnseignement
+[error]     request.body.validate[UniteEnseignement].fold(
+[error]                           ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\controllers\InscriptionController.scala:19:65: No instance of play.api.libs.json.Reads is available for universite.models.StatutInscription in the implicit scope (Hint: if declared in the same file, make sure it's declared before)
+[error]   implicit val inscriptionReads: Reads[Inscription] = Json.reads[Inscription]
+[error]                                                                 ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\repositories\FormationRepository.scala:180:116: value ues is not a member of universite.models.Semestre
+[error]       VALUES (${semestre.idSemestre}, ${semestre.nomSemestre}, ${semestre.niveau}, ${semestre.filiere}, ${semestre.ues.mkString(";")})
+[error]                                                                                                                    ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\app\universite\repositories\FormationRepository.scala:190:26: value ues is not a member of universite.models.Semestre
+[error]         ues = ${semestre.ues.mkString(";")}
+[error]                          ^
+[error] D:\school\projet-scala\gestion-universitaire-api\api\conf\routes:127:1: type EmploiDuTempsController is not a member of package universite.controllers
+[error] GET      /api/emploi-du-temps/filiere/:filiere     universite.controllers.EmploiDuTempsController.parFiliere(filiere: String)
+
+[error] D:\school\projet-scala\gestion-universitaire-api\api\conf\routes:127:1: type EmploiDuTempsController is not a member of package universite.controllers
+[error] GET      /api/emploi-du-temps/filiere/:filiere     universite.controllers.EmploiDuTempsController.parFiliere(filiere: String)
+
+[error] 31 errors found
+[error] (Compile / compileIncremental) Compilation failed
+[error] Total time: 20 s, completed 11 May 2026, 23:53:56

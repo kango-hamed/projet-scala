@@ -177,7 +177,7 @@ class FormationRepository @Inject()(val db: Database) extends BaseRepository {
   def creerSemestre(semestre: Semestre): Boolean = withConnection { implicit conn =>
     SQL"""
       INSERT INTO semestres (id_semestre, nom_semestre, niveau, filiere, ues)
-      VALUES (${semestre.idSemestre}, ${semestre.nomSemestre}, ${semestre.niveau}, ${semestre.filiere}, ${semestre.ues.mkString(";")})
+      VALUES (${semestre.idSemestre}, ${semestre.nomSemestre}, ${semestre.niveau}, ${semestre.filiere}, ${semestre.uniteEnseignements.mkString(";")})
     """.executeUpdate() > 0
   }
 
@@ -187,7 +187,7 @@ class FormationRepository @Inject()(val db: Database) extends BaseRepository {
         nom_semestre = ${semestre.nomSemestre},
         niveau = ${semestre.niveau},
         filiere = ${semestre.filiere},
-        ues = ${semestre.ues.mkString(";")}
+        ues = ${semestre.uniteEnseignements.mkString(";")}
       WHERE id_semestre = $id
     """.executeUpdate() > 0
   }
